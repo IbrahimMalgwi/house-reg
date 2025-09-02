@@ -2,12 +2,13 @@ import React, { useEffect, useState, useMemo } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { getShortHouseName } from '../utils/houseMapping';
 
 const HOUSE_COLORS = {
-    "Saviour": "#FF0000", // Red
-    "Holy Ghost Baptizer": "#FFD700", // Yellow
-    "Healer": "#0000FF", // Blue
-    "Coming King": "#800080", // Purple
+    "Jesus Christ Our Saviour": "#FF0000", // Red
+    "Jesus Christ The Holy Ghost Baptizer": "#FFD700", // Yellow
+    "Jesus Christ Our Healer": "#0000FF", // Blue
+    "Jesus Christ Our Coming King": "#800080", // Purple
 };
 
 const GENDER_COLORS = ["#4CAF50", "#FF9800", "#9E9E9E"];
@@ -120,7 +121,7 @@ export default function AnalysisDashboard() {
         if (active && payload && payload.length) {
             return (
                 <div className="bg-white p-3 shadow-md rounded-md border border-gray-200">
-                    <p className="font-semibold">{payload[0].name}</p>
+                    <p className="font-semibold">{getShortHouseName(payload[0].name)}</p>
                     <p className="text-sm">{`Count: ${payload[0].value}`}</p>
                     <p className="text-sm">{`Percentage: ${payload[0].payload.percentage}%`}</p>
                 </div>
@@ -306,7 +307,7 @@ export default function AnalysisDashboard() {
                                                     className="px-2 py-1 rounded-full text-xs text-white"
                                                     style={{ backgroundColor: HOUSE_COLORS[reg.house] || '#ccc' }}
                                                 >
-                                                    {reg.house || 'N/A'}
+                                                    {getShortHouseName(reg.house) || 'N/A'}
                                                 </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -348,7 +349,7 @@ export default function AnalysisDashboard() {
                                 }}
                             >
                                 <p className="text-white text-sm font-semibold uppercase tracking-wide">
-                                    {h.name}
+                                    {getShortHouseName(h.name)}
                                 </p>
                                 <p className="text-white text-3xl font-bold my-2">{h.value}</p>
                                 <p className="text-white text-opacity-90 text-sm">({h.percentage}%)</p>
@@ -367,7 +368,7 @@ export default function AnalysisDashboard() {
                                     outerRadius={120}
                                     innerRadius={70}
                                     dataKey="value"
-                                    label={({ name, percentage }) => `${name}: ${percentage}%`}
+                                    label={({ name, percentage }) => `${getShortHouseName(name)}: ${percentage}%`}
                                     labelLine={false}
                                 >
                                     {houseData.map((entry, index) => (
@@ -383,7 +384,7 @@ export default function AnalysisDashboard() {
                                 <Legend
                                     iconType="circle"
                                     iconSize={12}
-                                    formatter={(value) => <span className="text-sm">{value}</span>}
+                                    formatter={(value) => <span className="text-sm">{getShortHouseName(value)}</span>}
                                 />
                             </PieChart>
                         </ResponsiveContainer>

@@ -2,12 +2,31 @@ import React, { useState, useEffect } from "react";
 import { db } from "../firebase";
 import { collection, addDoc, serverTimestamp, getDocs } from "firebase/firestore";
 
-
 const houses = [
-    { name: "Saviour", color: "#FF0000", key: "saviour" },
-    { name: "Holy Ghost Baptizer", color: "#FFD700", key: "holyGhost" },
-    { name: "Healer", color: "#0000FF", key: "healer" },
-    { name: "Coming King", color: "#800080", key: "comingKing" },
+    {
+        name: "Jesus Christ Our Saviour",
+        color: "#FF0000",
+        key: "saviour",
+        shortName: "Our Saviour"
+    },
+    {
+        name: "Jesus Christ The Holy Ghost Baptizer",
+        color: "#FFD700",
+        key: "holyGhost",
+        shortName: "Holy Ghost Baptizer"
+    },
+    {
+        name: "Jesus Christ Our Healer",
+        color: "#0000FF",
+        key: "healer",
+        shortName: "Our Healer"
+    },
+    {
+        name: "Jesus Christ Our Coming King",
+        color: "#800080",
+        key: "comingKing",
+        shortName: "Our Coming King"
+    },
 ];
 
 export default function RegistrationForm({ onRegister }) {
@@ -26,15 +45,20 @@ export default function RegistrationForm({ onRegister }) {
     const [firebaseError, setFirebaseError] = useState("");
     const [houseCounts, setHouseCounts] = useState({});
 
-
-
     // Fetch current house counts from Firebase
     useEffect(() => {
         // Helper function to get house key from name (moved inside useEffect)
         const getHouseKey = (houseName) => {
-            const house = houses.find(h =>
-                h.name.toLowerCase() === houseName.toLowerCase()
-            );
+            const house = houses.find(h => {
+                const normalizedInput = houseName.toLowerCase();
+                return (
+                    normalizedInput === h.name.toLowerCase() ||
+                    (normalizedInput === "saviour" && h.name === "Jesus Christ Our Saviour") ||
+                    (normalizedInput === "holy ghost baptizer" && h.name === "Jesus Christ The Holy Ghost Baptizer") ||
+                    (normalizedInput === "healer" && h.name === "Jesus Christ Our Healer") ||
+                    (normalizedInput === "coming king" && h.name === "Jesus Christ Our Coming King")
+                );
+            });
             return house ? house.key : null;
         };
 
@@ -127,7 +151,6 @@ export default function RegistrationForm({ onRegister }) {
         return Object.keys(newErrors).length === 0;
     };
 
-    // In your RegistrationForm.js, update the handleSubmit function:
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (loading) return;
@@ -377,7 +400,7 @@ export default function RegistrationForm({ onRegister }) {
                             </p>
                             <div className="my-4 py-2 px-4 rounded-lg inline-block" style={{ backgroundColor: `${success.color}20` }}>
                                 <span className="font-bold text-lg" style={{ color: success.color }}>
-                                    {success.name} House
+                                    {success.name}
                                 </span>
                             </div>
                             <button

@@ -22,12 +22,14 @@ function Navigation() {
                     <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                         🏠 House Registration System
                     </h1>
+
                     <div className="flex flex-wrap justify-center sm:justify-start items-center mt-2 gap-2">
-                        <span className="text-xs px-2 py-1 rounded-full text-white bg-red-500">Saviour</span>
-                        <span className="text-xs px-2 py-1 rounded-full text-black bg-yellow-400">Holy Ghost Baptizer</span>
-                        <span className="text-xs px-2 py-1 rounded-full text-white bg-blue-500">Healer</span>
-                        <span className="text-xs px-2 py-1 rounded-full text-white bg-purple-500">Coming King</span>
+                        <span className="text-xs px-2 py-1 rounded-full text-white bg-red-500">Jesus Christ Our Saviour</span>
+                        <span className="text-xs px-2 py-1 rounded-full text-black bg-yellow-400">Jesus Christ The Holy Ghost Baptizer</span>
+                        <span className="text-xs px-2 py-1 rounded-full text-white bg-blue-500">Jesus Christ Our Healer</span>
+                        <span className="text-xs px-2 py-1 rounded-full text-white bg-purple-500">Jesus Christ Our Coming King</span>
                     </div>
+
                 </div>
 
                 <nav className="flex items-center space-x-4">
@@ -206,7 +208,7 @@ function AppContent() {
             {/* Footer */}
             <footer className="mt-12 py-6 bg-white border-t border-indigo-100">
                 <div className="max-w-7xl mx-auto px-4 text-center text-sm text-gray-600">
-                    <p>House Registration System • Built with React & Firebase</p>
+                    <p>House Registration System • Built By Ibrahim Gana Malgwi with React & Firebase</p>
                 </div>
             </footer>
         </div>
