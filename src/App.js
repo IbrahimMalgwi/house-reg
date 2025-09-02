@@ -8,41 +8,38 @@ import AnalysisDashboard from "./pages/AnalysisDashboard";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import PrivateRoute from "./components/PrivateRoute";
-import Layout from "./components/Layout";
 import useRegistration from "./hooks/useRegistration";
 
 function AppContent() {
     const { registrants, lastAssigned, handleRegister, clearLastAssigned } = useRegistration();
 
     return (
-        <Layout>
-            <Routes>
-                <Route path="/" element={<Navigate to="/register" replace />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route
-                    path="/register"
-                    element={
-                        <PrivateRoute>
-                            <RegistrationForm
-                                onRegister={handleRegister}
-                                lastAssigned={lastAssigned}
-                                clearLastAssigned={clearLastAssigned}
-                            />
-                        </PrivateRoute>
-                    }
-                />
-                <Route
-                    path="/analysis"
-                    element={
-                        <PrivateRoute>
-                            <AnalysisDashboard registrants={registrants} />
-                        </PrivateRoute>
-                    }
-                />
-                <Route path="*" element={<Navigate to="/register" replace />} />
-            </Routes>
-        </Layout>
+        <Routes>
+            <Route path="/" element={<Navigate to="/register" replace />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route
+                path="/register"
+                element={
+                    <PrivateRoute>
+                        <RegistrationForm
+                            onRegister={handleRegister}
+                            lastAssigned={lastAssigned}
+                            clearLastAssigned={clearLastAssigned}
+                        />
+                    </PrivateRoute>
+                }
+            />
+            <Route
+                path="/analysis"
+                element={
+                    <PrivateRoute>
+                        <AnalysisDashboard registrants={registrants} />
+                    </PrivateRoute>
+                }
+            />
+            <Route path="*" element={<Navigate to="/register" replace />} />
+        </Routes>
     );
 }
 

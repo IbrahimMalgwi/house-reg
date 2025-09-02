@@ -2,6 +2,9 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../firebase";
 import { collection, addDoc, serverTimestamp, getDocs } from "firebase/firestore";
+import Layout from "../components/Layout";
+
+
 
 const houses = [
     {
@@ -30,7 +33,7 @@ const houses = [
     },
 ];
 
-export default function RegistrationForm({ onRegister }) {
+export default function RegistrationForm({ onRegister, lastAssigned, clearLastAssigned }) {
     const [formData, setFormData] = useState({
         name: "",
         age: "",
@@ -209,8 +212,9 @@ export default function RegistrationForm({ onRegister }) {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-100 py-8 px-4">
-            <div className="w-full max-w-md">
+        <Layout>
+            <div className=" flex items-center justify-center py-8 px-4">
+                <div className="w-full max-w-md">
                 <div className="bg-white p-8 rounded-2xl shadow-xl space-y-4">
                     <div className="text-center mb-6">
                         <h2 className="text-3xl font-bold text-indigo-700 mb-2">
@@ -378,9 +382,9 @@ export default function RegistrationForm({ onRegister }) {
                     </form>
                 </div>
 
-                {/* Success Modal */}
-                {success && (
-                    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
+                    {/* Success Modal */}
+                    {success && (
+                        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
                         <div
                             className="bg-white p-6 rounded-xl shadow-lg text-center max-w-sm w-full animate-pop-in"
                             style={{ borderTop: `8px solid ${success.color}` }}
@@ -414,6 +418,7 @@ export default function RegistrationForm({ onRegister }) {
                     </div>
                 )}
             </div>
-        </div>
+            </div>
+        </Layout>
     );
 }

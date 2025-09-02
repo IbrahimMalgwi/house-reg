@@ -1,7 +1,8 @@
-// src/pages/Signup.js
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+// src/pages/Signup.jsx
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import Layout from "../components/Layout";
 
 export default function Signup() {
     const [email, setEmail] = useState('');
@@ -32,7 +33,8 @@ export default function Signup() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-100 py-8 px-4">
+        <Layout>
+            <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
             <div className="w-full max-w-md">
                 <div className="bg-white p-8 rounded-2xl shadow-xl space-y-4">
                     <div className="text-center mb-6">
@@ -124,5 +126,6 @@ export default function Signup() {
                 </div>
             </div>
         </div>
+        </Layout>
     );
 }

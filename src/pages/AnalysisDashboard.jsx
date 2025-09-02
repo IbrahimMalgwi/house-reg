@@ -8,6 +8,7 @@ import {
     getHouseColor,
 } from "../utils/houseMapping";
 import { CSVLink } from "react-csv";
+import Layout from "../components/Layout";
 
 // Import Chart.js and react-chartjs-2
 import {
@@ -605,13 +606,27 @@ export default function Dashboard() {
         );
     }
 
+    if (loading) {
+        return (
+            <Layout>
+                <div className="flex items-center justify-center min-h-screen">
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600 mx-auto"></div>
+                        <p className="mt-4 text-lg text-gray-600">Loading dashboard data...</p>
+                    </div>
+                </div>
+            </Layout>
+        );
+    }
+
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 py-8 px-4">
+        <Layout>
             <div className="max-w-7xl mx-auto">
                 <header className="text-center mb-8 py-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl shadow-lg">
                     <h1 className="text-3xl font-bold mb-2">Teen Program Dashboard</h1>
                     <p className="text-xl opacity-90">Comprehensive overview of registrations and distributions</p>
                 </header>
+            <div className="max-w-7xl mx-auto">
 
                 {/* Total Registration Card */}
                 <div className="bg-white rounded-2xl p-6 shadow-lg mb-6">
@@ -810,5 +825,6 @@ export default function Dashboard() {
                 <RegistrationTable registrations={registrations} />
             </div>
         </div>
+</Layout>
     );
 }
