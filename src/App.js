@@ -1,34 +1,96 @@
+// src/App.js
 import React, { useState, useEffect } from "react";
-import { HashRouter as Router, Routes, Route, Link, Navigate, useLocation } from "react-router-dom";
-// import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, Link, useLocation } from "react-router-dom";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
 
 import RegistrationForm from "./pages/RegistrationForm";
 import AnalysisDashboard from "./pages/AnalysisDashboard";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import PrivateRoute from "./components/PrivateRoute";
 import { HOUSES, HOUSE_KEYS, getHouseByKey } from "./utils/houseMapping";
 
-// Custom NavLink component for active state styling
-const NavLink = ({ to, children }) => {
+// Navigation component
+function Navigation() {
+    const { currentUser, logout } = useAuth();
     const location = useLocation();
-    const isActive = location.pathname === to;
 
     return (
-        <Link
-            to={to}
-            className={`relative px-4 py-2 font-medium rounded-lg transition-all duration-300 ${
-                isActive
-                    ? "text-white bg-indigo-600 shadow-md"
-                    : "text-indigo-700 hover:text-indigo-600 hover:bg-indigo-50"
-            }`}
-        >
-            {children}
-            {isActive && (
-                <span className="absolute inset-0 border-2 border-indigo-400 rounded-lg opacity-60"></span>
-            )}
-        </Link>
-    );
-};
+        <header className="bg-white shadow-lg border-b border-indigo-100">
+            <div className="max-w-7xl mx-auto px-4 py-5 flex flex-col sm:flex-row items-center justify-between">
+                <div className="text-center sm:text-left mb-4 sm:mb-0">
+                    <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                        🏠 House Registration System
+                    </h1>
+                    <div className="flex flex-wrap justify-center sm:justify-start items-center mt-2 gap-2">
+                        <span className="text-xs px-2 py-1 rounded-full text-white bg-red-500">Saviour</span>
+                        <span className="text-xs px-2 py-1 rounded-full text-black bg-yellow-400">Holy Ghost Baptizer</span>
+                        <span className="text-xs px-2 py-1 rounded-full text-white bg-blue-500">Healer</span>
+                        <span className="text-xs px-2 py-1 rounded-full text-white bg-purple-500">Coming King</span>
+                    </div>
+                </div>
 
-function App() {
+                <nav className="flex items-center space-x-4">
+                    {currentUser ? (
+                        <>
+                            <Link
+                                to="/register"
+                                className={`px-4 py-2 font-medium rounded-lg transition-all duration-300 ${
+                                    location.pathname === '/register'
+                                        ? "text-white bg-indigo-600 shadow-md"
+                                        : "text-indigo-700 hover:text-indigo-600 hover:bg-indigo-50"
+                                }`}
+                            >
+                                📝 Registration
+                            </Link>
+                            <Link
+                                to="/analysis"
+                                className={`px-4 py-2 font-medium rounded-lg transition-all duration-300 ${
+                                    location.pathname === '/analysis'
+                                        ? "text-white bg-indigo-600 shadow-md"
+                                        : "text-indigo-700 hover:text-indigo-600 hover:bg-indigo-50"
+                                }`}
+                            >
+                                📊 Analytics
+                            </Link>
+                            <button
+                                onClick={logout}
+                                className="px-4 py-2 text-indigo-700 hover:text-indigo-600 hover:bg-indigo-50 font-medium rounded-lg transition-all duration-300"
+                            >
+                                Logout
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <Link
+                                to="/login"
+                                className={`px-4 py-2 font-medium rounded-lg transition-all duration-300 ${
+                                    location.pathname === '/login'
+                                        ? "text-white bg-indigo-600 shadow-md"
+                                        : "text-indigo-700 hover:text-indigo-600 hover:bg-indigo-50"
+                                }`}
+                            >
+                                Login
+                            </Link>
+                            <Link
+                                to="/signup"
+                                className={`px-4 py-2 font-medium rounded-lg transition-all duration-300 ${
+                                    location.pathname === '/signup'
+                                        ? "text-white bg-indigo-600 shadow-md"
+                                        : "text-indigo-700 hover:text-indigo-600 hover:bg-indigo-50"
+                                }`}
+                            >
+                                Sign Up
+                            </Link>
+                        </>
+                    )}
+                </nav>
+            </div>
+        </header>
+    );
+}
+
+function AppContent() {
     const [registrants, setRegistrants] = useState([]);
     const [lastAssigned, setLastAssigned] = useState(null);
 
@@ -87,7 +149,7 @@ function App() {
 
         const newRegistrant = {
             id: Date.now(),
-            fullName: form.fullName || form.name || "",
+            fullName: form.name || "",
             sex: form.sex || "",
             age: form.age ? Number(form.age) : null,
             religion: form.religion || "",
@@ -108,60 +170,55 @@ function App() {
     }
 
     return (
-        <Router>
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-                {/* Enhanced Header */}
-                <header className="bg-white shadow-lg border-b border-indigo-100">
-                    <div className="max-w-7xl mx-auto px-4 py-5 flex flex-col sm:flex-row items-center justify-between">
-                        <div className="text-center sm:text-left mb-4 sm:mb-0">
-                            <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                                🏠 House Registration System
-                            </h1>
-                            <div className="flex flex-wrap justify-center sm:justify-start items-center mt-2 gap-2">
-                                <span className="text-xs px-2 py-1 rounded-full text-white bg-red-500">Saviour</span>
-                                <span className="text-xs px-2 py-1 rounded-full text-black bg-yellow-400">Holy Ghost Baptizer</span>
-                                <span className="text-xs px-2 py-1 rounded-full text-white bg-blue-500">Healer</span>
-                                <span className="text-xs px-2 py-1 rounded-full text-white bg-purple-500">Coming King</span>
-                            </div>
-                        </div>
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+            <Navigation />
 
-                        <nav className="flex items-center space-x-2 bg-white p-2 rounded-xl shadow-sm">
-                            <NavLink to="/register">
-                                📝 Register
-                            </NavLink>
-                            <NavLink to="/analysis">
-                                📊 Analysis
-                            </NavLink>
-                        </nav>
-                    </div>
-                </header>
-
-                <main className="max-w-7xl mx-auto p-4 md:p-6">
-                    <Routes>
-                        <Route path="/" element={<Navigate to="/register" replace />} />
-                        <Route
-                            path="/register"
-                            element={
+            <main className="max-w-7xl mx-auto p-4 md:p-6">
+                <Routes>
+                    <Route path="/" element={<Navigate to="/register" replace />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/signup" element={<Signup />} />
+                    <Route
+                        path="/register"
+                        element={
+                            <PrivateRoute>
                                 <RegistrationForm
                                     onRegister={handleRegister}
                                     lastAssigned={lastAssigned}
                                     clearLastAssigned={clearLastAssigned}
                                 />
-                            }
-                        />
-                        <Route path="/analysis" element={<AnalysisDashboard registrants={registrants} />} />
-                        <Route path="*" element={<Navigate to="/register" replace />} />
-                    </Routes>
-                </main>
+                            </PrivateRoute>
+                        }
+                    />
+                    <Route
+                        path="/analysis"
+                        element={
+                            <PrivateRoute>
+                                <AnalysisDashboard registrants={registrants} />
+                            </PrivateRoute>
+                        }
+                    />
+                    <Route path="*" element={<Navigate to="/register" replace />} />
+                </Routes>
+            </main>
 
-                {/* Footer */}
-                <footer className="mt-12 py-6 bg-white border-t border-indigo-100">
-                    <div className="max-w-7xl mx-auto px-4 text-center text-sm text-gray-600">
-                        <p>House Registration System • Built with React & Firebase</p>
-                    </div>
-                </footer>
-            </div>
-        </Router>
+            {/* Footer */}
+            <footer className="mt-12 py-6 bg-white border-t border-indigo-100">
+                <div className="max-w-7xl mx-auto px-4 text-center text-sm text-gray-600">
+                    <p>House Registration System • Built with React & Firebase</p>
+                </div>
+            </footer>
+        </div>
+    );
+}
+
+function App() {
+    return (
+        <AuthProvider>
+            <Router>
+                <AppContent />
+            </Router>
+        </AuthProvider>
     );
 }
 

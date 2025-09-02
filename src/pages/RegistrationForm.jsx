@@ -144,11 +144,15 @@ export default function RegistrationForm({ onRegister }) {
             // ✅ Assign house using balanced algorithm
             const house = assignHouse();
 
+            const currentUser = { uid: "anonymous", displayName: "Anonymous" }; // Default to anonymous
+            // In your handleSubmit function in RegistrationForm.js
             await addDoc(registrationsRef, {
                 ...formData,
                 house: house.name,
                 color: house.color,
                 createdAt: serverTimestamp(),
+                createdBy: currentUser.uid, // Add user ID who created this registration
+                createdByName: currentUser.displayName // Add user's display name
             });
 
             setSuccess({ ...house, participant: formData.name });
