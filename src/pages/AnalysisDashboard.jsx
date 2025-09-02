@@ -1,3 +1,4 @@
+// src/pages/AnalysisDashboard.jsx
 import React, { useEffect, useState, useMemo } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
@@ -402,9 +403,9 @@ export default function AnalysisDashboard() {
 
                     {/* Pie chart */}
                     <div className="h-80">
-                        <ResponsiveContainer width="极速" height="100%">
+                        <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
-                                <p
+                                <Pie
                                     data={houseData}
                                     cx="50%"
                                     cy="50%"
@@ -422,7 +423,7 @@ export default function AnalysisDashboard() {
                                             strokeWidth={2}
                                         />
                                     ))}
-                                </p>
+                                </Pie>
                                 <Tooltip content={<CustomTooltip />} />
                                 <Legend
                                     iconType="circle"
@@ -438,7 +439,7 @@ export default function AnalysisDashboard() {
                 <div className="grid md:grid-cols-2 gap-6 mb-8">
                     {/* Gender Distribution */}
                     <section className="bg-white rounded-xl shadow-md p-6">
-                        <h2 className="text-xl font-bold mb极速 text-center text-gray-800 flex items-center justify-center">
+                        <h2 className="text-xl font-bold mb-6 text-center text-gray-800 flex items-center justify-center">
                             <span className="bg-green-100 p-2 rounded-lg mr-2">👫</span>
                             Gender Distribution
                         </h2>
