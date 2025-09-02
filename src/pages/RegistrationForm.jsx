@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { db } from "../firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, getDocs, query, orderBy } from "firebase/firestore";
 
 export default function RegistrationForm({ onRegister }) {
     const [formData, setFormData] = useState({
@@ -16,17 +16,81 @@ export default function RegistrationForm({ onRegister }) {
     const [success, setSuccess] = useState(null);
     const [errors, setErrors] = useState({});
     const [firebaseError, setFirebaseError] = useState("");
+    const [houseCounts, setHouseCounts] = useState({});
 
     const houses = [
-        { name: "Saviour", color: "#FF0000" },
-        { name: "Holy Ghost Baptizer", color: "#FFD700" },
-        { name: "Healer", color: "#0000FF" },
-        { name: "Coming King", color: "#800080" },
+        { name: "Saviour", color: "#FF0000", key: "saviour" },
+        { name: "Holy Ghost Baptizer", color: "#FFD700", key: "holyGhost" },
+        { name: "Healer", color: "#0000FF", key: "healer" },
+        { name: "Coming King", color: "#800080", key: "comingKing" },
     ];
 
+    // Fetch current house counts from Firebase
+    useEffect(() => {
+        async function fetchHouseCounts() {
+            try {
+                const registrationsRef = collection(db, "registrations");
+                const snapshot = await getDocs(registrationsRef);
+
+                const counts = {
+                    saviour: 0,
+                    holyGhost: 0,
+                    healer: 0,
+                    comingKing: 0
+                };
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.house) {
+                        const houseKey = getHouseKey(data.house);
+                        if (houseKey && counts.hasOwnProperty(houseKey)) {
+                            counts[houseKey]++;
+                        }
+                    }
+                });
+
+                setHouseCounts(counts);
+            } catch (err) {
+                console.error("Error fetching house counts:", err);
+            }
+        }
+
+        fetchHouseCounts();
+    }, [success]); // Refetch when a new registration is successful
+
+    // Helper function to get house key from name
+    const getHouseKey = (houseName) => {
+        const house = houses.find(h =>
+            h.name.toLowerCase() === houseName.toLowerCase()
+        );
+        return house ? house.key : null;
+    };
+
+    // Smart house assignment algorithm
     const assignHouse = () => {
-        const random = Math.floor(Math.random() * houses.length);
-        return houses[random];
+        // If we don't have counts yet, fall back to random
+        if (Object.keys(houseCounts).length === 0) {
+            const random = Math.floor(Math.random() * houses.length);
+            return houses[random];
+        }
+
+        // Find the house with the minimum count
+        let minCount = Infinity;
+        let candidateHouses = [];
+
+        houses.forEach(house => {
+            const count = houseCounts[house.key] || 0;
+            if (count < minCount) {
+                minCount = count;
+                candidateHouses = [house];
+            } else if (count === minCount) {
+                candidateHouses.push(house);
+            }
+        });
+
+        // If multiple houses have the same minimum count, choose randomly among them
+        const randomIndex = Math.floor(Math.random() * candidateHouses.length);
+        return candidateHouses[randomIndex];
     };
 
     const validateForm = () => {
@@ -74,7 +138,7 @@ export default function RegistrationForm({ onRegister }) {
         try {
             const registrationsRef = collection(db, "registrations");
 
-            // ✅ Assign house & save
+            // ✅ Assign house using balanced algorithm
             const house = assignHouse();
 
             await addDoc(registrationsRef, {
@@ -123,6 +187,18 @@ export default function RegistrationForm({ onRegister }) {
                             Teen Registration
                         </h2>
                         <p className="text-gray-600">Join the exciting teen program!</p>
+
+                        {/* Display current house counts */}
+                        <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
+                            {houses.map(house => (
+                                <div key={house.key} className="flex items-center justify-center p-2 rounded-md"
+                                     style={{ backgroundColor: `${house.color}20`, borderLeft: `3px solid ${house.color}` }}>
+                                    <span className="font-medium" style={{ color: house.color }}>
+                                        {house.name}: {houseCounts[house.key] || 0}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
                     {firebaseError && (
