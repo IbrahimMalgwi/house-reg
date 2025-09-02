@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Redirecting...</title>
+    <script>
+        // Get the path from the URL and redirect to index.html with that path
+        const path = window.location.pathname;
+        window.location.href = '/index.html' + (path !== '/' ? '?redirect=' + encodeURIComponent(path) : '');
+    </script>
+</head>
+<body>
+<noscript>
+    <h1>Redirecting...</h1>
+    <p>If you are not redirected automatically, <a href="/">click here</a>.</p>
+</noscript>
+</body>
+</html>

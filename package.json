@@ -3,7 +3,7 @@
   "name": "house-reg",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://IbrahimMalgwi.github.io/house-reg",
+  "homepage": ".",
   "dependencies": {
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.8.0",
