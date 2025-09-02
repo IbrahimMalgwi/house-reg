@@ -133,6 +133,7 @@ function AppContent() {
     }, [registrants]);
 
     // Balanced assignment: choose randomly among the min-count houses
+    // In your App.js, update the handleRegister function:
     function handleRegister(form) {
         // compute current counts
         const counts = { RED: 0, YELLOW: 0, BLUE: 0, PURPLE: 0 };
@@ -149,7 +150,7 @@ function AppContent() {
 
         const newRegistrant = {
             id: Date.now(),
-            fullName: form.name || "",
+            fullName: form.name || "", // Use form.name instead of form.fullName
             sex: form.sex || "",
             age: form.age ? Number(form.age) : null,
             religion: form.religion || "",
