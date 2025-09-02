@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../firebase";
-import { collection, addDoc, serverTimestamp, getDocs, query, orderBy } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, getDocs } from "firebase/firestore";
+
+
+const houses = [
+    { name: "Saviour", color: "#FF0000", key: "saviour" },
+    { name: "Holy Ghost Baptizer", color: "#FFD700", key: "holyGhost" },
+    { name: "Healer", color: "#0000FF", key: "healer" },
+    { name: "Coming King", color: "#800080", key: "comingKing" },
+];
 
 export default function RegistrationForm({ onRegister }) {
     const [formData, setFormData] = useState({
@@ -18,15 +26,18 @@ export default function RegistrationForm({ onRegister }) {
     const [firebaseError, setFirebaseError] = useState("");
     const [houseCounts, setHouseCounts] = useState({});
 
-    const houses = [
-        { name: "Saviour", color: "#FF0000", key: "saviour" },
-        { name: "Holy Ghost Baptizer", color: "#FFD700", key: "holyGhost" },
-        { name: "Healer", color: "#0000FF", key: "healer" },
-        { name: "Coming King", color: "#800080", key: "comingKing" },
-    ];
+
 
     // Fetch current house counts from Firebase
     useEffect(() => {
+        // Helper function to get house key from name (moved inside useEffect)
+        const getHouseKey = (houseName) => {
+            const house = houses.find(h =>
+                h.name.toLowerCase() === houseName.toLowerCase()
+            );
+            return house ? house.key : null;
+        };
+
         async function fetchHouseCounts() {
             try {
                 const registrationsRef = collection(db, "registrations");
@@ -57,14 +68,6 @@ export default function RegistrationForm({ onRegister }) {
 
         fetchHouseCounts();
     }, [success]); // Refetch when a new registration is successful
-
-    // Helper function to get house key from name
-    const getHouseKey = (houseName) => {
-        const house = houses.find(h =>
-            h.name.toLowerCase() === houseName.toLowerCase()
-        );
-        return house ? house.key : null;
-    };
 
     // Smart house assignment algorithm
     const assignHouse = () => {
@@ -358,7 +361,7 @@ export default function RegistrationForm({ onRegister }) {
                             <div className="mb-4">
                                 <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center" style={{ backgroundColor: `${success.color}20` }}>
                                     <svg className="w-8 h-8" style={{ color: success.color }} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19-7"></path>
                                     </svg>
                                 </div>
                             </div>

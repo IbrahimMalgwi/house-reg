@@ -81,8 +81,7 @@ export default function AnalysisDashboard() {
     // Get unique values for filter dropdowns
     const uniqueHouses = useMemo(() => [...new Set(registrations.map(r => r.house).filter(Boolean))], [registrations]);
     const uniqueSexes = useMemo(() => [...new Set(registrations.map(r => r.sex).filter(Boolean))], [registrations]);
-    const uniqueReligions = useMemo(() => [...new Set(registrations.map(r => r.religion).filter(Boolean))], [registrations]);
-    const uniqueAges = useMemo(() => [...new Set(registrations.map(r => r.age).filter(Boolean))], [registrations]);
+    const uniqueReligions = useMemo(() => [...new Set(registrations.map(r => r.religion).filter(Boolean))], [registrations])
 
     if (loading) {
         return (
