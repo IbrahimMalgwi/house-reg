@@ -36,6 +36,37 @@ export default function AnalysisDashboard() {
         fetchData();
     }, []);
 
+    // CSV Export Function
+    const exportToCsv = () => {
+        // Create CSV content
+        const headers = "Full Name,Age,Gender,Religion,House,Phone,Email,Registration Date\n";
+
+        const csvContent = filteredRegistrations.map(reg => {
+            const registrationDate = reg.createdAt
+                ? (reg.createdAt.seconds
+                    ? new Date(reg.createdAt.seconds * 1000).toLocaleDateString()
+                    : new Date(reg.createdAt).toLocaleDateString())
+                : 'N/A';
+
+            return `"${reg.name || ''}",${reg.age || ''},"${reg.sex || ''}","${reg.religion || ''}","${reg.house || ''}","${reg.phone || ''}","${reg.email || ''}","${registrationDate}"`;
+        }).join('\n');
+
+        const fullCsv = headers + csvContent;
+
+        // Create download link
+        const blob = new Blob([fullCsv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+
+        link.setAttribute('href', url);
+        link.setAttribute('download', `house-registrations-${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     // Handle sorting
     const handleSort = (key) => {
         let direction = 'ascending';
@@ -228,12 +259,24 @@ export default function AnalysisDashboard() {
                         <div className="text-sm text-gray-600">
                             Showing {filteredRegistrations.length} of {registrations.length} registrations
                         </div>
-                        <button
-                            onClick={clearFilters}
-                            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-                        >
-                            Clear Filters
-                        </button>
+                        <div className="flex space-x-2">
+                            <button
+                                onClick={clearFilters}
+                                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                            >
+                                Clear Filters
+                            </button>
+                            {/* CSV Export Button */}
+                            <button
+                                onClick={exportToCsv}
+                                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center"
+                            >
+                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 极速4 4l-4 4m0 0l-4-4m4 4V4"></path>
+                                </svg>
+                                Export CSV
+                            </button>
+                        </div>
                     </div>
                 </section>
 
@@ -359,9 +402,9 @@ export default function AnalysisDashboard() {
 
                     {/* Pie chart */}
                     <div className="h-80">
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="极速" height="100%">
                             <PieChart>
-                                <Pie
+                                <p
                                     data={houseData}
                                     cx="50%"
                                     cy="50%"
@@ -379,7 +422,7 @@ export default function AnalysisDashboard() {
                                             strokeWidth={2}
                                         />
                                     ))}
-                                </Pie>
+                                </p>
                                 <Tooltip content={<CustomTooltip />} />
                                 <Legend
                                     iconType="circle"
@@ -395,7 +438,7 @@ export default function AnalysisDashboard() {
                 <div className="grid md:grid-cols-2 gap-6 mb-8">
                     {/* Gender Distribution */}
                     <section className="bg-white rounded-xl shadow-md p-6">
-                        <h2 className="text-xl font-bold mb-6 text-center text-gray-800 flex items-center justify-center">
+                        <h2 className="text-xl font-bold mb极速 text-center text-gray-800 flex items-center justify-center">
                             <span className="bg-green-100 p-2 rounded-lg mr-2">👫</span>
                             Gender Distribution
                         </h2>
@@ -447,7 +490,7 @@ export default function AnalysisDashboard() {
                                         outerRadius={100}
                                         innerRadius={60}
                                         dataKey="value"
-                                        label={({ percentage }) => `${percentage}%`}
+                                        label={({ percentage }) => `${percentage}`}
                                     >
                                         {religionData.map((entry, index) => (
                                             <Cell
