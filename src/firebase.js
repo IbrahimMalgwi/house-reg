@@ -21,8 +21,6 @@ const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 
-// Initialize Analytics (optional)
-// const analytics = getAnalytics(app);
 
 // Log successful initialization
 console.log("Firebase initialized successfully with project: teen-registration");
