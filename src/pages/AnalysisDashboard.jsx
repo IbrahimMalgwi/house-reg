@@ -76,7 +76,7 @@ export default function Dashboard() {
                     }
                 }
 
-                // Normalize sex values - FIXED: Added Female option
+                // Normalize sex values
                 const sexValue = r.sex?.toLowerCase() || "";
                 let normalizedSex = r.sex;
 
@@ -316,6 +316,54 @@ export default function Dashboard() {
                     <h1 className="text-3xl font-bold mb-2">Teen Program Dashboard</h1>
                     <p className="text-xl opacity-90">Comprehensive overview of registrations and distributions</p>
                 </header>
+
+                {/* Total Registration Card */}
+                <div className="bg-white rounded-2xl p-6 shadow-lg mb-6">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                            <div className="w-12 h-12 rounded-lg bg-indigo-100 flex items-center justify-center mr-4 text-indigo-600 text-xl">
+                                📊
+                            </div>
+                            <div>
+                                <h2 className="text-2xl font-semibold">Total Registrations</h2>
+                                <p className="text-gray-500">All participants in the teen program</p>
+                            </div>
+                        </div>
+                        <div className="text-right">
+                            <div className="text-4xl font-bold text-indigo-600">{total}</div>
+                            <div className="text-sm text-gray-500">Participants</div>
+                        </div>
+                    </div>
+                    <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="bg-blue-50 p-4 rounded-lg flex items-center">
+                            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3 text-blue-600">
+                                👥
+                            </div>
+                            <div>
+                                <div className="text-sm text-blue-600">Gender Distribution</div>
+                                <div className="font-semibold">{allGenders.length} Categories</div>
+                            </div>
+                        </div>
+                        <div className="bg-purple-50 p-4 rounded-lg flex items-center">
+                            <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3 text-purple-600">
+                                🏠
+                            </div>
+                            <div>
+                                <div className="text-sm text-purple-600">House Distribution</div>
+                                <div className="font-semibold">{houseData.length} Houses</div>
+                            </div>
+                        </div>
+                        <div className="bg-green-50 p-4 rounded-lg flex items-center">
+                            <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3 text-green-600">
+                                🙏
+                            </div>
+                            <div>
+                                <div className="text-sm text-green-600">Religion Distribution</div>
+                                <div className="font-semibold">{religionData.length} Categories</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                     {/* House Distribution Card */}
