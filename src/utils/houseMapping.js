@@ -36,3 +36,15 @@ export function getShortHouseName(fullName) {
     };
     return mappings[fullName] || fullName;
 }
+
+// utils/houseMapping.js
+export const THEME_COLORS = [
+    "#ef4444", // Red (Saviour)
+    "#facc15", // Yellow (Holy Ghost Baptizer)
+    "#3b82f6", // Blue (Healer)
+    "#8b5cf6", // Purple (Coming King)
+];
+
+
+
+

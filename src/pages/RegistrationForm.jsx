@@ -281,7 +281,7 @@ export default function RegistrationForm({ onRegister }) {
                         {/* Sex Dropdown */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Gender *
+                                Sex *
                             </label>
                             <select
                                 value={formData.sex}
