@@ -1,12 +1,5 @@
-// src/utils/helpers.js
-export const getShortHouseName = (fullName) => {
-    const mappings = {
-        "Jesus Christ Our Saviour": "Our Saviour",
-        "Jesus Christ The Holy Ghost Baptizer": "Holy Ghost Baptizer",
-        "Jesus Christ Our Healer": "Our Healer",
-        "Jesus Christ Our Coming King": "Our Coming King"
-    };
-    return mappings[fullName] || fullName;
-};
+// utils/helpers.js
+import { getShortHouseName, getHouseColor, getFullHouseName } from "./houseMapping";
 
-// You can add other helper functions here too
+// Re-export so other files can still import from helpers if they want
+export { getShortHouseName, getHouseColor, getFullHouseName };
