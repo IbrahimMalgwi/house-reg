@@ -1,5 +1,5 @@
 // src/pages/Dashboard.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 import {
@@ -7,6 +7,7 @@ import {
     getShortHouseName,
     getHouseColor,
 } from "../utils/houseMapping";
+import { CSVLink } from "react-csv";
 
 // Import Chart.js and react-chartjs-2
 import {
@@ -31,6 +32,292 @@ ChartJS.register(
     BarElement,
     Title
 );
+
+// Registration Table Component
+function RegistrationTable({ registrations }) {
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
+
+    // Filter registrations based on search term
+    const filteredRegistrations = useMemo(() => {
+        return registrations.filter(reg =>
+            reg.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            reg.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            reg.phone?.includes(searchTerm) ||
+            reg.house?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            reg.sex?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            reg.religion?.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }, [registrations, searchTerm]);
+
+    // Sort registrations
+    const sortedRegistrations = useMemo(() => {
+        let sortableItems = [...filteredRegistrations];
+        if (sortConfig.key !== null) {
+            sortableItems.sort((a, b) => {
+                if (a[sortConfig.key] < b[sortConfig.key]) {
+                    return sortConfig.direction === 'ascending' ? -1 : 1;
+                }
+                if (a[sortConfig.key] > b[sortConfig.key]) {
+                    return sortConfig.direction === 'ascending' ? 1 : -1;
+                }
+                return 0;
+            });
+        }
+        return sortableItems;
+    }, [filteredRegistrations, sortConfig]);
+
+    // Get current page items
+    const currentItems = useMemo(() => {
+        const indexOfLastItem = currentPage * itemsPerPage;
+        const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+        return sortedRegistrations.slice(indexOfFirstItem, indexOfLastItem);
+    }, [sortedRegistrations, currentPage, itemsPerPage]);
+
+    // Calculate total pages
+    const totalPages = Math.ceil(sortedRegistrations.length / itemsPerPage);
+
+    // Handle sort request
+    const handleSort = (key) => {
+        let direction = 'ascending';
+        if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+            direction = 'descending';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    // Handle page change
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    };
+
+    // Prepare data for CSV export
+    const csvData = useMemo(() => {
+        const headers = [
+            { label: "Name", key: "name" },
+            { label: "Age", key: "age" },
+            { label: "Gender", key: "sex" },
+            { label: "Religion", key: "religion" },
+            { label: "Phone", key: "phone" },
+            { label: "Email", key: "email" },
+            { label: "House", key: "house" },
+            { label: "Registration Date", key: "createdAt" }
+        ];
+
+        const data = sortedRegistrations.map(reg => ({
+            name: reg.name || "",
+            age: reg.age || "",
+            sex: reg.sex || "",
+            religion: reg.religion || "",
+            phone: reg.phone || "",
+            email: reg.email || "",
+            house: reg.house || "",
+            createdAt: reg.createdAt ? new Date(reg.createdAt.seconds * 1000).toLocaleDateString() : ""
+        }));
+
+        return { data, headers };
+    }, [sortedRegistrations]);
+
+    // Format date for display
+    const formatDate = (timestamp) => {
+        if (!timestamp || !timestamp.seconds) return "N/A";
+        return new Date(timestamp.seconds * 1000).toLocaleDateString();
+    };
+
+    return (
+        <div className="bg-white rounded-2xl p-6 shadow-lg mt-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                <h2 className="text-2xl font-semibold mb-4 md:mb-0">Registration Records</h2>
+                <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                    <input
+                        type="text"
+                        placeholder="Search registrations..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                    />
+                    <CSVLink
+                        data={csvData.data}
+                        headers={csvData.headers}
+                        filename={"teen-program-registrations.csv"}
+                        className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors text-center"
+                    >
+                        Export CSV
+                    </CSVLink>
+                </div>
+            </div>
+
+            <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                    <tr>
+                        <th
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                            onClick={() => handleSort('name')}
+                        >
+                            Name {sortConfig.key === 'name' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
+                        </th>
+                        <th
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                            onClick={() => handleSort('age')}
+                        >
+                            Age {sortConfig.key === 'age' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
+                        </th>
+                        <th
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                            onClick={() => handleSort('sex')}
+                        >
+                            Gender {sortConfig.key === 'sex' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
+                        </th>
+                        <th
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                            onClick={() => handleSort('religion')}
+                        >
+                            Religion {sortConfig.key === 'religion' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Contact
+                        </th>
+                        <th
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                            onClick={() => handleSort('house')}
+                        >
+                            House {sortConfig.key === 'house' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
+                        </th>
+                        <th
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                            onClick={() => handleSort('createdAt')}
+                        >
+                            Date {sortConfig.key === 'createdAt' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                    {currentItems.length > 0 ? (
+                        currentItems.map((registration, index) => (
+                            <tr key={registration.id || index} className="hover:bg-gray-50">
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    <div className="text-sm font-medium text-gray-900">{registration.name}</div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    <div className="text-sm text-gray-900">{registration.age}</div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                      {registration.sex}
+                    </span>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {registration.religion}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    <div className="text-sm text-gray-900">{registration.phone}</div>
+                                    <div className="text-sm text-gray-500">{registration.email}</div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full text-white"
+                          style={{
+                              backgroundColor: getHouseColor(
+                                  Object.keys(HOUSES).find(key => HOUSES[key].name === registration.house)
+                              )
+                          }}
+                    >
+                      {getShortHouseName(registration.house)}
+                    </span>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {formatDate(registration.createdAt)}
+                                </td>
+                            </tr>
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan="7" className="px-6 py-4 text-center text-sm text-gray-500">
+                                No registrations found
+                            </td>
+                        </tr>
+                    )}
+                    </tbody>
+                </table>
+            </div>
+
+            {/* Pagination */}
+            <div className="flex items-center justify-between mt-4">
+                <div className="flex-1 flex items-center justify-between">
+                    <div>
+                        <p className="text-sm text-gray-700">
+                            Showing <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> to{" "}
+                            <span className="font-medium">
+                {Math.min(currentPage * itemsPerPage, sortedRegistrations.length)}
+              </span> of{" "}
+                            <span className="font-medium">{sortedRegistrations.length}</span> results
+                        </p>
+                    </div>
+                    <div>
+                        <select
+                            value={itemsPerPage}
+                            onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                            className="mr-4 px-2 py-1 border border-gray-300 rounded-md"
+                        >
+                            <option value="5">5 per page</option>
+                            <option value="10">10 per page</option>
+                            <option value="25">25 per page</option>
+                            <option value="50">50 per page</option>
+                        </select>
+                    </div>
+                    <div>
+                        <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                            <button
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                disabled={currentPage === 1}
+                                className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                            >
+                                Previous
+                            </button>
+
+                            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                let pageNum;
+                                if (totalPages <= 5) {
+                                    pageNum = i + 1;
+                                } else if (currentPage <= 3) {
+                                    pageNum = i + 1;
+                                } else if (currentPage >= totalPages - 2) {
+                                    pageNum = totalPages - 4 + i;
+                                } else {
+                                    pageNum = currentPage - 2 + i;
+                                }
+
+                                return (
+                                    <button
+                                        key={pageNum}
+                                        onClick={() => handlePageChange(pageNum)}
+                                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                                            currentPage === pageNum
+                                                ? "z-10 bg-indigo-50 border-indigo-500 text-indigo-600"
+                                                : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
+                                        }`}
+                                    >
+                                        {pageNum}
+                                    </button>
+                                );
+                            })}
+
+                            <button
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                                className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                            >
+                                Next
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
 
 export default function Dashboard() {
     const [registrations, setRegistrations] = useState([]);
@@ -76,13 +363,22 @@ export default function Dashboard() {
                     }
                 }
 
-                // Normalize sex values
+                // Normalize sex values - FIXED: Properly handle all gender options
                 const sexValue = r.sex?.toLowerCase() || "";
-                let normalizedSex = r.sex;
+                let normalizedSex = "Unknown";
 
-                if (sexValue.includes("male") || sexValue === "m") {
+// Check for exact matches first
+                if (sexValue === "male") {
                     normalizedSex = "Male";
-                } else if (sexValue.includes("female") || sexValue === "f" || sexValue === "fem") {
+                } else if (sexValue === "female") {
+                    normalizedSex = "Female";
+                } else if (sexValue === "others") {
+                    normalizedSex = "Others";
+                }
+// Then check for partial matches
+                else if (sexValue.includes("male")) {
+                    normalizedSex = "Male";
+                } else if (sexValue.includes("female")) {
                     normalizedSex = "Female";
                 } else if (sexValue.includes("other") || sexValue.includes("prefer") || sexValue.includes("not")) {
                     normalizedSex = "Others";
@@ -91,7 +387,7 @@ export default function Dashboard() {
                 return {
                     ...r,
                     house: normalizedHouse || "Unknown",
-                    sex: normalizedSex || "Unknown",
+                    sex: normalizedSex,
                 };
             });
 
@@ -311,7 +607,7 @@ export default function Dashboard() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 py-8 px-4">
-            <div className="max-w-6xl mx-auto">
+            <div className="max-w-7xl mx-auto">
                 <header className="text-center mb-8 py-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl shadow-lg">
                     <h1 className="text-3xl font-bold mb-2">Teen Program Dashboard</h1>
                     <p className="text-xl opacity-90">Comprehensive overview of registrations and distributions</p>
@@ -509,6 +805,9 @@ export default function Dashboard() {
                         </div>
                     </div>
                 </div>
+
+                {/* Registration Records Table */}
+                <RegistrationTable registrations={registrations} />
             </div>
         </div>
     );
