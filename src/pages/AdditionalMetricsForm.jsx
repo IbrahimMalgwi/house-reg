@@ -11,32 +11,25 @@ const TEAMS = {
     PURPLE: { name: "Jesus our coming King", color: "#800080" }
 };
 
-// Define sports categories
+// Define updated sports categories
 const SPORTS = [
     "Football",
     "Basketball",
-    "Table Tennis",
     "Volleyball",
-    "Scrabble",
-    "Track and Field"
-];
-
-// Define track and field specific events
-const TRACK_FIELD_EVENTS = [
-    "100m Sprint",
-    "200m Sprint",
-    "400m Sprint",
+    "Long Jump",
+    "Shot Put",
+    "100m",
+    "200m",
+    "400m",
     "4x100m Relay",
     "4x400m Relay",
-    "Long Jump",
-    "Shot Put"
+    "Table Tennis",
+    "Scrabble",
+    "Chess"
 ];
 
-// Define age categories for track and field
-const AGE_CATEGORIES = [
-    "9-10 years", "11-12 years", "13-14 years",
-    "15-16 years", "17-19 years"
-];
+// Define positions for winners
+const POSITIONS = ["1st Place", "2nd Place", "3rd Place"];
 
 export default function AdditionalMetricsForm() {
     const [formData, setFormData] = useState({
@@ -49,10 +42,8 @@ export default function AdditionalMetricsForm() {
         counselingDetails: "",
         teamWin: false,
         winningTeam: "",
+        position: "",
         sportCategory: "",
-        trackFieldEvent: "",
-        ageCategory: "",
-        genderCategory: "",
         eventDate: new Date().toISOString().split('T')[0]
     });
 
@@ -89,10 +80,8 @@ export default function AdditionalMetricsForm() {
                 counselingDetails: "",
                 teamWin: false,
                 winningTeam: "",
+                position: "",
                 sportCategory: "",
-                trackFieldEvent: "",
-                ageCategory: "",
-                genderCategory: "",
                 eventDate: new Date().toISOString().split('T')[0]
             });
 
@@ -165,7 +154,7 @@ export default function AdditionalMetricsForm() {
                                     id="holyGhostBaptism"
                                     name="holyGhostBaptism"
                                     checked={formData.holyGhostBaptism}
-                                    onChange={handleChange}
+                                    onChange= {handleChange}
                                     className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                                 />
                                 <label htmlFor="holyGhostBaptism" className="ml-2 block text-sm text-gray-900">
@@ -247,7 +236,7 @@ export default function AdditionalMetricsForm() {
 
                     {/* Team Wins */}
                     <div className="border-t border-gray-200 pt-6">
-                        <h3 className="text-lg font-medium text-gray-900 mb-4">Team Wins</h3>
+                        <h3 className="text-lg font-medium text-gray-900 mb-4">Team Wins & Positions</h3>
 
                         <div className="flex items-center mb-4">
                             <input
@@ -259,7 +248,7 @@ export default function AdditionalMetricsForm() {
                                 className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                             />
                             <label htmlFor="teamWin" className="ml-2 block text-sm text-gray-900">
-                                Record team win
+                                Record team win and position
                             </label>
                         </div>
 
@@ -287,6 +276,26 @@ export default function AdditionalMetricsForm() {
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Position
+                                    </label>
+                                    <select
+                                        name="position"
+                                        value={formData.position}
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                                        required={formData.teamWin}
+                                    >
+                                        <option value="">Select Position</option>
+                                        {POSITIONS.map(position => (
+                                            <option key={position} value={position}>
+                                                {position}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Sport Category
                                     </label>
                                     <select
@@ -302,63 +311,6 @@ export default function AdditionalMetricsForm() {
                                         ))}
                                     </select>
                                 </div>
-
-                                {formData.sportCategory === "Track and Field" && (
-                                    <>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                Track & Field Event
-                                            </label>
-                                            <select
-                                                name="trackFieldEvent"
-                                                value={formData.trackFieldEvent}
-                                                onChange={handleChange}
-                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                                                required
-                                            >
-                                                <option value="">Select Event</option>
-                                                {TRACK_FIELD_EVENTS.map(event => (
-                                                    <option key={event} value={event}>{event}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                Age Category
-                                            </label>
-                                            <select
-                                                name="ageCategory"
-                                                value={formData.ageCategory}
-                                                onChange={handleChange}
-                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                                                required
-                                            >
-                                                <option value="">Select Age Category</option>
-                                                {AGE_CATEGORIES.map(age => (
-                                                    <option key={age} value={age}>{age}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                Gender Category
-                                            </label>
-                                            <select
-                                                name="genderCategory"
-                                                value={formData.genderCategory}
-                                                onChange={handleChange}
-                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                                                required
-                                            >
-                                                <option value="">Select Gender</option>
-                                                <option value="Male">Male</option>
-                                                <option value="Female">Female</option>
-                                            </select>
-                                        </div>
-                                    </>
-                                )}
                             </div>
                         )}
                     </div>
