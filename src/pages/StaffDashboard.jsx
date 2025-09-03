@@ -42,16 +42,16 @@ const DESIGNATIONS = [
     "Other"
 ];
 
-// Color palette for the designations
+// Updated Color palette using the same scheme as Dashboard
 const DESIGNATION_COLORS = {
-    "Counselor/Marshal": "#FF6B6B",
-    "Medic": "#4ECDC4",
-    "Media": "#45B7D1",
-    "Sound": "#FFE66D",
-    "Welfare": "#FF9F1C",
-    "Data": "#6A0572",
-    "Security": "#AB83A1",
-    "Other": "#2EC4B6"
+    "Counselor/Marshal": "#FF0000", // Red
+    "Medic": "#0000FF", // Blue
+    "Media": "#800080", // Purple
+    "Sound": "#FFD700", // Gold/Yellow
+    "Welfare": "#4f46e5", // Indigo
+    "Data": "#6366f1", // Lighter Indigo
+    "Security": "#10b981", // Green
+    "Other": "#6b7280" // Gray
 };
 
 export default function StaffDashboard() {
@@ -248,7 +248,7 @@ export default function StaffDashboard() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
+            <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-50 to-purple-100">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600 mx-auto"></div>
                     <p className="mt-4 text-lg text-gray-600">Loading staff analytics...</p>
@@ -258,52 +258,52 @@ export default function StaffDashboard() {
     }
 
     return (
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
             {/* Header */}
-            <div className="text-center mb-8 py-6 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl shadow-lg">
+            <div className="text-center mb-8 py-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl shadow-lg">
                 <h1 className="text-3xl font-bold mb-2">Staff Analytics Dashboard</h1>
                 <p className="text-xl opacity-90">Comprehensive overview of staff registrations</p>
             </div>
 
             {/* Statistics Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 text-center">
+                <div className="bg-white rounded-2xl shadow-lg p-6 text-center">
                     <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center mx-auto mb-3 text-indigo-600">
                         👥
                     </div>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Total Staff</h3>
-                    <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">{stats.totalStaff}</p>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Total Staff</h3>
+                    <p className="text-3xl font-bold text-indigo-600">{stats.totalStaff}</p>
                 </div>
 
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 text-center">
+                <div className="bg-white rounded-2xl shadow-lg p-6 text-center">
                     <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-3 text-green-600">
                         📈
                     </div>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">This Week</h3>
-                    <p className="text-3xl font-bold text-green-600 dark:text-green-400">{stats.recentRegistrations}</p>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">This Week</h3>
+                    <p className="text-3xl font-bold text-green-600">{stats.recentRegistrations}</p>
                 </div>
 
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 text-center">
+                <div className="bg-white rounded-2xl shadow-lg p-6 text-center">
                     <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-3 text-blue-600">
                         🏢
                     </div>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Organizations</h3>
-                    <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{Object.keys(stats.byOrganization).length}</p>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Organizations</h3>
+                    <p className="text-3xl font-bold text-blue-600">{Object.keys(stats.byOrganization).length}</p>
                 </div>
 
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 text-center">
+                <div className="bg-white rounded-2xl shadow-lg p-6 text-center">
                     <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-3 text-purple-600">
                         🎯
                     </div>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Roles</h3>
-                    <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">{Object.keys(stats.byDesignation).length}</p>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Roles</h3>
+                    <p className="text-3xl font-bold text-purple-600">{Object.keys(stats.byDesignation).length}</p>
                 </div>
             </div>
 
             {/* Charts Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 {/* Designation Distribution */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+                <div className="bg-white rounded-2xl shadow-lg p-6">
                     <div className="flex items-center mb-6">
                         <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center mr-3 text-purple-600">
                             🎯
@@ -316,7 +316,7 @@ export default function StaffDashboard() {
                 </div>
 
                 {/* Top Organizations */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+                <div className="bg-white rounded-2xl shadow-lg p-6">
                     <div className="flex items-center mb-6">
                         <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center mr-3 text-blue-600">
                             🏢
@@ -330,7 +330,7 @@ export default function StaffDashboard() {
             </div>
 
             {/* Designation Breakdown Cards */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-8">
+            <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
                 <div className="flex items-center mb-6">
                     <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center mr-3 text-indigo-600">
                         📊
@@ -341,18 +341,18 @@ export default function StaffDashboard() {
                     {orderedDesignationData.map(({ designation, count }) => (
                         <div
                             key={designation}
-                            className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border-l-4"
+                            className="bg-gray-50 p-4 rounded-lg border-l-4"
                             style={{ borderLeftColor: DESIGNATION_COLORS[designation] }}
                         >
                             <div className="flex justify-between items-center mb-2">
-                                <span className="font-medium text-gray-900 dark:text-white text-sm">
+                                <span className="font-medium text-gray-900 text-sm">
                                     {designation}
                                 </span>
                                 <span className="text-lg font-bold" style={{ color: DESIGNATION_COLORS[designation] }}>
                                     {count}
                                 </span>
                             </div>
-                            <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
+                            <div className="w-full bg-gray-200 rounded-full h-2">
                                 <div
                                     className="h-2 rounded-full"
                                     style={{
@@ -361,7 +361,7 @@ export default function StaffDashboard() {
                                     }}
                                 ></div>
                             </div>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            <p className="text-xs text-gray-500 mt-1">
                                 {stats.totalStaff > 0 ? ((count / stats.totalStaff) * 100).toFixed(1) : 0}% of total
                             </p>
                         </div>
@@ -370,7 +370,7 @@ export default function StaffDashboard() {
             </div>
 
             {/* Staff List with Search and Export */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+            <div className="bg-white rounded-2xl shadow-lg p-6">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
                     <h2 className="text-2xl font-semibold mb-4 md:mb-0">Staff Members ({filteredStaff.length})</h2>
                     <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
@@ -379,7 +379,7 @@ export default function StaffDashboard() {
                             placeholder="Search staff..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
                         />
                         <CSVLink
                             data={csvData.data}
@@ -393,17 +393,17 @@ export default function StaffDashboard() {
                 </div>
 
                 <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                        <thead className="bg-gray-50 dark:bg-gray-700">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Name</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Contact</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Organization</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Designation</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Registered</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Organization</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Designation</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Registered</th>
                         </tr>
                         </thead>
-                        <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        <tbody className="bg-white divide-y divide-gray-200">
                         {currentItems.length > 0 ? (
                             currentItems.map((staff) => {
                                 const designation = staff.finalDesignation || staff.designation;
@@ -411,15 +411,15 @@ export default function StaffDashboard() {
                                 const displayDesignation = isCommonDesignation ? designation : "Other";
 
                                 return (
-                                    <tr key={staff.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <tr key={staff.id} className="hover:bg-gray-50">
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm font-medium text-gray-900 dark:text-white">{staff.name}</div>
+                                            <div className="text-sm font-medium text-gray-900">{staff.name}</div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm text-gray-900 dark:text-white">{staff.phone}</div>
-                                            <div className="text-sm text-gray-500 dark:text-gray-400">{staff.email}</div>
+                                            <div className="text-sm text-gray-900">{staff.phone}</div>
+                                            <div className="text-sm text-gray-500">{staff.email}</div>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             {staff.organization}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
@@ -435,7 +435,7 @@ export default function StaffDashboard() {
                                                     {!isCommonDesignation && designation !== "Other" && ` (${designation})`}
                                                 </span>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {staff.createdAt ? new Date(staff.createdAt.seconds * 1000).toLocaleDateString() : "Unknown"}
                                         </td>
                                     </tr>
@@ -443,7 +443,7 @@ export default function StaffDashboard() {
                             })
                         ) : (
                             <tr>
-                                <td colSpan="5" className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                                <td colSpan="5" className="px-6 py-4 text-center text-sm text-gray-500">
                                     No staff members found
                                 </td>
                             </tr>
@@ -457,7 +457,7 @@ export default function StaffDashboard() {
                     <div className="flex items-center justify-between mt-4">
                         <div className="flex-1 flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-gray-700 dark:text-gray-300">
+                                <p className="text-sm text-gray-700">
                                     Showing <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> to{" "}
                                     <span className="font-medium">
                                         {Math.min(currentPage * itemsPerPage, filteredStaff.length)}
@@ -469,7 +469,7 @@ export default function StaffDashboard() {
                                 <select
                                     value={itemsPerPage}
                                     onChange={(e) => setItemsPerPage(Number(e.target.value))}
-                                    className="px-2 py-1 border border-gray-300 rounded-md dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                                    className="px-2 py-1 border border-gray-300 rounded-md"
                                 >
                                     <option value="5">5 per page</option>
                                     <option value="10">10 per page</option>
@@ -479,14 +479,14 @@ export default function StaffDashboard() {
                                 <button
                                     onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                                     disabled={currentPage === 1}
-                                    className="px-3 py-1 border border-gray-300 rounded-md disabled:opacity-50 dark:border-gray-600"
+                                    className="px-3 py-1 border border-gray-300 rounded-md disabled:opacity-50"
                                 >
                                     Previous
                                 </button>
                                 <button
                                     onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                                     disabled={currentPage === totalPages}
-                                    className="px-3 py-1 border border-gray-300 rounded-md disabled:opacity-50 dark:border-gray-600"
+                                    className="px-3 py-1 border border-gray-300 rounded-md disabled:opacity-50"
                                 >
                                     Next
                                 </button>
