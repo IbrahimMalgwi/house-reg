@@ -107,6 +107,7 @@ export default function ProgramMetricsDashboard() {
     const filteredData = filterDataByTime(metricsData);
 
     // Calculate all metrics
+    // Calculate all metrics
     const calculateMetrics = () => {
         // Spiritual metrics
         const decisionsForChrist = filteredData.filter(item => item.decisionForChrist).length;
@@ -114,8 +115,11 @@ export default function ProgramMetricsDashboard() {
         const injuries = filteredData.filter(item => item.injured).length;
         const counselingSessions = filteredData.filter(item => item.receiveCounseling).length;
 
-        // Team wins analysis
-        const teamWins = filteredData.filter(item => item.teamWin);
+        // Team wins analysis - filter items where teamWin is true
+        const teamWins = filteredData.filter(item => item.teamWin === true);
+
+        // Debug: Log team wins to see what data we're getting
+        console.log("Team wins data:", teamWins);
 
         // Wins by team
         const winsByTeam = {};
@@ -143,7 +147,7 @@ export default function ProgramMetricsDashboard() {
         };
 
         teamWins.forEach(win => {
-            // Count wins by team
+            // Count wins by team - handle exact matches from the form
             if (win.winningTeam && winsByTeam.hasOwnProperty(win.winningTeam)) {
                 winsByTeam[win.winningTeam]++;
             }
@@ -151,12 +155,12 @@ export default function ProgramMetricsDashboard() {
             // Count wins by sport
             if (win.sportCategory && winsBySport[win.sportCategory]) {
                 winsBySport[win.sportCategory].total++;
-                if (win.winningTeam) {
+                if (win.winningTeam && winsBySport[win.sportCategory].wins.hasOwnProperty(win.winningTeam)) {
                     winsBySport[win.sportCategory].wins[win.winningTeam]++;
                 }
             }
 
-            // Count wins by position
+            // Count wins by position - handle exact matches from the form
             if (win.position && winsByPosition.hasOwnProperty(win.position)) {
                 winsByPosition[win.position]++;
             }
@@ -176,8 +180,9 @@ export default function ProgramMetricsDashboard() {
             };
         });
 
-        // Calculate overall winner
+        // Calculate overall winner - filter out teams with 0 wins
         const overallRanking = Object.entries(winsByTeam)
+            .filter(([_, wins]) => wins > 0)
             .sort(([,a], [,b]) => b - a);
 
         // Calculate team performance by positions
@@ -192,8 +197,17 @@ export default function ProgramMetricsDashboard() {
 
         teamWins.forEach(win => {
             if (win.winningTeam && win.position && teamPositions[win.winningTeam]) {
-                teamPositions[win.winningTeam][win.position]++;
+                if (teamPositions[win.winningTeam].hasOwnProperty(win.position)) {
+                    teamPositions[win.winningTeam][win.position]++;
+                }
             }
+        });
+
+        // Debug: Log the calculated metrics
+        console.log("Calculated metrics:", {
+            winsByTeam,
+            overallRanking,
+            teamWinsCount: teamWins.length
         });
 
         return {
@@ -210,7 +224,6 @@ export default function ProgramMetricsDashboard() {
             overallRanking
         };
     };
-
     const metrics = calculateMetrics();
 
     // Prepare data for CSV export
