@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import { getStorage } from "firebase/storage";
 
 // Your web app's Firebase configuration from the console
 const firebaseConfig = {
@@ -24,3 +25,6 @@ export const auth = getAuth(app);
 console.log("Firebase initialized successfully with project: teen-registration");
 
 
+export const storage = getStorage(app);
+// Optional: Export the app instance if needed elsewhere
+export default app;

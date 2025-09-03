@@ -2,18 +2,20 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
-
+import { ThemeProvider } from "./contexts/ThemeContext";
+import Layout from "./components/Layout";
 import RegistrationForm from "./pages/RegistrationForm";
 import AnalysisDashboard from "./pages/AnalysisDashboard";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Profile from "./pages/Profile";
+import AdminPanel from "./pages/AdminPanel";
 import PrivateRoute from "./components/PrivateRoute";
-import useRegistration from "./hooks/useRegistration";
+
 
 function AppContent() {
-    const { registrants, lastAssigned, handleRegister, clearLastAssigned } = useRegistration();
-
     return (
+        <Layout>
         <Routes>
             <Route path="/" element={<Navigate to="/register" replace />} />
             <Route path="/login" element={<Login />} />
@@ -22,11 +24,7 @@ function AppContent() {
                 path="/register"
                 element={
                     <PrivateRoute>
-                        <RegistrationForm
-                            onRegister={handleRegister}
-                            lastAssigned={lastAssigned}
-                            clearLastAssigned={clearLastAssigned}
-                        />
+                        <RegistrationForm />
                     </PrivateRoute>
                 }
             />
@@ -34,22 +32,41 @@ function AppContent() {
                 path="/analysis"
                 element={
                     <PrivateRoute>
-                        <AnalysisDashboard registrants={registrants} />
+                        <AnalysisDashboard />
+                    </PrivateRoute>
+                }
+            />
+            <Route
+                path="/profile"
+                element={
+                    <PrivateRoute>
+                        <Profile />
+                    </PrivateRoute>
+                }
+            />
+            <Route
+                path="/admin"
+                element={
+                    <PrivateRoute>
+                        <AdminPanel />
                     </PrivateRoute>
                 }
             />
             <Route path="*" element={<Navigate to="/register" replace />} />
         </Routes>
+        </Layout>
     );
 }
 
 function App() {
     return (
-        <AuthProvider>
-            <Router>
-                <AppContent />
-            </Router>
-        </AuthProvider>
+        <ThemeProvider>
+            <AuthProvider>
+                <Router>
+                    <AppContent />
+                </Router>
+            </AuthProvider>
+        </ThemeProvider>
     );
 }
 

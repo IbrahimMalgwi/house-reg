@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../firebase";
 import { collection, addDoc, serverTimestamp, getDocs } from "firebase/firestore";
-import Layout from "../components/Layout";
+
 
 
 
@@ -212,7 +212,7 @@ export default function RegistrationForm({ onRegister, lastAssigned, clearLastAs
     };
 
     return (
-        <Layout>
+
             <div className=" flex items-center justify-center py-8 px-4">
                 <div className="w-full max-w-md">
                 <div className="bg-white p-8 rounded-2xl shadow-xl space-y-4">
@@ -419,6 +419,6 @@ export default function RegistrationForm({ onRegister, lastAssigned, clearLastAs
                 )}
             </div>
             </div>
-        </Layout>
+
     );
 }
