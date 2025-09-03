@@ -68,8 +68,14 @@ export default function Header() {
                             <NavLink to="/register" currentPath={location.pathname}>
                                 📝 Registration
                             </NavLink>
+                            <NavLink to="/staff-registration" currentPath={location.pathname}>
+                                👥 Staff Registration
+                            </NavLink>
                             <NavLink to="/analysis" currentPath={location.pathname}>
                                 📊 Analytics
+                            </NavLink>
+                            <NavLink to="/staff-dashboard" currentPath={location.pathname}>
+                                📈 Staff Analytics
                             </NavLink>
                             <NavLink to="/profile" currentPath={location.pathname}>
                                 👤 Profile

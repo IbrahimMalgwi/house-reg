@@ -11,6 +11,9 @@ import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import AdminPanel from "./pages/AdminPanel";
 import PrivateRoute from "./components/PrivateRoute";
+import StaffRegistration from "./pages/StaffRegistration";
+import StaffDashboard from "./pages/StaffDashboard";
+
 
 
 function AppContent() {
@@ -49,6 +52,23 @@ function AppContent() {
                 element={
                     <PrivateRoute>
                         <AdminPanel />
+                    </PrivateRoute>
+                }
+            />
+
+            <Route
+                path="/staff-registration"
+                element={
+                    <PrivateRoute>
+                        <StaffRegistration />
+                    </PrivateRoute>
+                }
+            />
+            <Route
+                path="/staff-dashboard"
+                element={
+                    <PrivateRoute>
+                        <StaffDashboard />
                     </PrivateRoute>
                 }
             />
