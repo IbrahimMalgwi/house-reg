@@ -8,7 +8,7 @@ import { uploadProfilePicture } from "../utils/storageHelpers";
 
 
 export default function Profile() {
-    const { currentUser, updatePassword, updateEmail, deleteUser, sendEmailVerification } = useAuth();
+    const { currentUser, updatePassword, updateEmail, sendEmailVerification } = useAuth();
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });

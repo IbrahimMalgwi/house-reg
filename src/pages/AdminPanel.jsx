@@ -1,8 +1,8 @@
 // src/pages/AdminPanel.jsx
 import React, { useState, useEffect } from "react";
 import { db } from "../firebase";
-import { collection, getDocs, doc, updateDoc, deleteDoc, query, where } from "firebase/firestore";
-import Layout from "../components/Layout";
+import { collection, getDocs, doc, updateDoc, deleteDoc } from "firebase/firestore";
+
 import AdminRoute from "../components/AdminRoute";
 
 export default function AdminPanel() {
@@ -84,18 +84,18 @@ export default function AdminPanel() {
     if (loading) {
         return (
             <AdminRoute>
-                <Layout>
+
                     <div className="flex items-center justify-center min-h-screen">
                         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
                     </div>
-                </Layout>
+
             </AdminRoute>
         );
     }
 
     return (
         <AdminRoute>
-            <Layout>
+
                 <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Admin Panel</h1>
 
@@ -310,7 +310,7 @@ export default function AdminPanel() {
                         </div>
                     )}
                 </div>
-            </Layout>
+
         </AdminRoute>
     );
 }
