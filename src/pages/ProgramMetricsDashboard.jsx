@@ -254,6 +254,7 @@ export default function ProgramMetricsDashboard() {
         ]
     };
 
+
     // Chart data for team wins
     const teamWinsChartData = {
         labels: Object.keys(metrics.winsByTeam).map(team => {
