@@ -29,17 +29,17 @@ export default function Header() {
                 {/* Logo only - removed house badges */}
                 <div className="flex items-center space-x-4">
                     <Link
-                        to="/"  // Changed to point to home page
+                        to="/"
                         className="flex items-center space-x-2 group"
                     >
                         <div className="w-10 h-10 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center text-white text-lg">
                             🏠
                         </div>
-                        <div>
+                        <div className="hidden sm:block">
                             <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent group-hover:from-indigo-700 group-hover:to-purple-700 transition-all">
                                 Sports Fiesta 4.0
                             </h1>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
                                 All Winners
                             </p>
                         </div>
@@ -47,32 +47,29 @@ export default function Header() {
                 </div>
 
                 {/* Desktop navigation */}
-                <nav className="hidden md:flex items-center space-x-2">
+                <nav className="hidden lg:flex items-center space-x-1">
                     {currentUser ? (
                         <>
                             <NavLink to="/" currentPath={location.pathname}>
                                 🏠 Home
                             </NavLink>
                             <NavLink to="/register" currentPath={location.pathname}>
-                                📝 Teens Registration
+                                📝 Teens
                             </NavLink>
                             <NavLink to="/staff-registration" currentPath={location.pathname}>
-                                👥 Marshal Registration
+                                👥 Marshal
                             </NavLink>
                             <NavLink to="/metrics-form" currentPath={location.pathname}>
-                                📋 Program Metrics
+                                📋 Metrics
                             </NavLink>
                             <NavLink to="/analysis" currentPath={location.pathname}>
-                                📊 Teens Analytics
+                                📊 Analytics
                             </NavLink>
                             <NavLink to="/staff-dashboard" currentPath={location.pathname}>
-                                📈 Marshal Analytics
+                                📈 Staff
                             </NavLink>
                             <NavLink to="/metrics-dashboard" currentPath={location.pathname}>
-                                📉 Program Analytics
-                            </NavLink>
-                            <NavLink to="/profile" currentPath={location.pathname}>
-                                👤 Profile
+                                📉 Program
                             </NavLink>
 
                             {/* Admin link - Only show for admin users */}
@@ -85,14 +82,14 @@ export default function Header() {
                             {/* Theme toggle */}
                             <button
                                 onClick={toggleTheme}
-                                className="p-2 rounded-lg text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                className="p-2 rounded-lg text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ml-1"
                                 aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
                             >
                                 {isDark ? '☀️' : '🌙'}
                             </button>
 
                             {/* User menu */}
-                            <div className="relative group ml-2">
+                            <div className="relative group ml-1">
                                 <Link
                                     to="/profile"
                                     className="flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
@@ -100,7 +97,7 @@ export default function Header() {
                                     <div className="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full flex items-center justify-center text-white text-sm">
                                         {currentUser.email?.charAt(0).toUpperCase() || 'U'}
                                     </div>
-                                    <span className="text-sm font-medium hidden lg:block">
+                                    <span className="text-sm font-medium hidden xl:block">
                                         {currentUser.email?.split('@')[0]}
                                     </span>
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -155,7 +152,7 @@ export default function Header() {
 
                 {/* Mobile menu button */}
                 <button
-                    className="md:hidden p-2 rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    className="lg:hidden p-2 rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     onClick={() => setIsMenuOpen(!isMenuOpen)}
                     aria-label="Toggle menu"
                     aria-expanded={isMenuOpen}
@@ -172,19 +169,19 @@ export default function Header() {
 
             {/* Mobile navigation */}
             <nav
-                className={`md:hidden bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out ${
-                    isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'
+                className={`lg:hidden bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out ${
+                    isMenuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0 overflow-hidden'
                 }`}
                 aria-hidden={!isMenuOpen}
             >
-                <div className="px-4 py-3 space-y-2">
+                <div className="px-4 py-3 space-y-1">
                     {currentUser ? (
                         <>
                             <MobileNavLink to="/" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
                                 🏠 Home
                             </MobileNavLink>
                             <MobileNavLink to="/register" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
-                                📝 Registration
+                                📝 Teens Registration
                             </MobileNavLink>
                             <MobileNavLink to="/staff-registration" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
                                 👥 Marshal Registration
@@ -193,7 +190,7 @@ export default function Header() {
                                 📋 Program Metrics
                             </MobileNavLink>
                             <MobileNavLink to="/analysis" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
-                                📊 Analytics
+                                📊 Teens Analytics
                             </MobileNavLink>
                             <MobileNavLink to="/staff-dashboard" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
                                 📈 Marshal Analytics
@@ -212,7 +209,7 @@ export default function Header() {
                                 </MobileNavLink>
                             )}
 
-                            <div className="pt-2 border-t border-gray-100 dark:border-gray-700 mt-2">
+                            <div className="pt-3 border-t border-gray-100 dark:border-gray-700 mt-3">
                                 <div className="flex items-center justify-between px-3 py-2">
                                     <span className="text-sm text-gray-600 dark:text-gray-400">Theme</span>
                                     <button
@@ -224,7 +221,7 @@ export default function Header() {
                                     </button>
                                 </div>
 
-                                <div className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400">
+                                <div className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400 break-words">
                                     Signed in as {currentUser.email}
                                 </div>
 
@@ -233,7 +230,7 @@ export default function Header() {
                                         logout();
                                         setIsMenuOpen(false);
                                     }}
-                                    className="w-full text-left px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                    className="w-full text-left px-4 py-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors mt-2"
                                 >
                                     🚪 Sign out
                                 </button>
@@ -251,7 +248,7 @@ export default function Header() {
                                 Sign Up
                             </MobileNavLink>
 
-                            <div className="pt-2 border-t border-gray-100 dark:border-gray-700 mt-2">
+                            <div className="pt-3 border-t border-gray-100 dark:border-gray-700 mt-3">
                                 <div className="flex items-center justify-between px-3 py-2">
                                     <span className="text-sm text-gray-600 dark:text-gray-400">Theme</span>
                                     <button
@@ -266,8 +263,6 @@ export default function Header() {
                         </>
                     )}
                 </div>
-
-                {/* REMOVED: Mobile house badges section */}
             </nav>
         </header>
     );
@@ -280,7 +275,7 @@ function NavLink({ to, currentPath, children }) {
     return (
         <Link
             to={to}
-            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap ${
                 isActive
                     ? "text-white bg-indigo-600 shadow-md"
                     : "text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-300 hover:bg-gray-100 dark:hover:bg-gray-700"
