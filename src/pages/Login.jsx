@@ -1,6 +1,6 @@
 // src/pages/Login.jsx
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function Login() {
@@ -8,8 +8,10 @@ export default function Login() {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
-    const { login } = useAuth(); // Make sure login is destructured correctly
+    const { login } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+    const from = location.state?.from?.pathname || '/';
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -17,8 +19,9 @@ export default function Login() {
         try {
             setError("");
             setLoading(true);
-            await login(email, password); // This should work now
-            navigate("/");
+            await login(email, password);
+            // Use the redirect path from PrivateRoute or default to home
+            navigate(from, { replace: true });
         } catch (error) {
             setError("Failed to sign in: " + error.message);
         }

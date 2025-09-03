@@ -64,6 +64,7 @@ function AppContent() {
                         </PrivateRoute>
                     }
                 />
+
                 <Route
                     path="/staff-dashboard"
                     element={
