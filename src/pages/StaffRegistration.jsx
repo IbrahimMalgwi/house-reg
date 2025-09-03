@@ -1,7 +1,9 @@
 // src/pages/StaffRegistration.jsx
 import React, { useState } from "react";
+import { useAuth } from "../contexts/AuthContext"; // Import useAuth
 import { db } from "../firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { useNavigate } from "react-router-dom"; // If using React Router
 
 
 const DESIGNATION_OPTIONS = [
@@ -16,6 +18,15 @@ const DESIGNATION_OPTIONS = [
 ];
 
 export default function StaffRegistration() {
+
+    const { currentUser } = useAuth();;
+    const navigate = useNavigate();
+    // Redirect if not authenticated
+    React.useEffect(() => {
+        if (!currentUser) {
+            navigate("/login"); // Redirect to login page
+        }
+    }, [currentUser, navigate]);// Get current user from auth context
     const [formData, setFormData] = useState({
         name: "",
         phone: "",
@@ -66,6 +77,12 @@ export default function StaffRegistration() {
         e.preventDefault();
         if (loading) return;
 
+        // Check if user is authenticated
+        if (!currentUser) {
+            setErrors({ submit: "Please log in to submit a staff registration." });
+            return;
+        }
+
         if (!validateForm()) {
             return;
         }
@@ -79,7 +96,11 @@ export default function StaffRegistration() {
                 ...formData,
                 finalDesignation: formData.designation === "Other" ? formData.otherDesignation : formData.designation,
                 createdAt: serverTimestamp(),
-                registrationType: "staff"
+                registrationType: "staff",
+                // Add user tracking information
+                submittedByUid: currentUser.uid,
+                submittedByEmail: currentUser.email,
+                submittedByName: currentUser.displayName || "Unknown"
             });
 
             setSuccess(true);
@@ -104,6 +125,7 @@ export default function StaffRegistration() {
         }
     };
 
+    // ... rest of your component remains the same
     const handleChange = (field, value) => {
         setFormData(prev => ({ ...prev, [field]: value }));
 
