@@ -15,12 +15,13 @@ import StaffRegistration from "./pages/StaffRegistration";
 import StaffDashboard from "./pages/StaffDashboard";
 import AdditionalMetricsForm from "./pages/AdditionalMetricsForm";
 import ProgramMetricsDashboard from "./pages/ProgramMetricsDashboard";
+import WelcomePage from "./pages/WelcomePage";
 
 function AppContent() {
     return (
         <Layout>
             <Routes>
-                <Route path="/" element={<Navigate to="/register" replace />} />
+                <Route path="/" element={<WelcomePage />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route
@@ -87,7 +88,7 @@ function AppContent() {
                         </PrivateRoute>
                     }
                 />
-                <Route path="*" element={<Navigate to="/register" replace />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </Layout>
     );

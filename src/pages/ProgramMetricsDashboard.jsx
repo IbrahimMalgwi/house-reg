@@ -77,8 +77,7 @@ export default function ProgramMetricsDashboard() {
 
     // Filter data based on time selection
     const filterDataByTime = (data) => {
-        const now = new Date();
-
+        // Removed the unused 'now' variable that was causing the eslint error
         if (timeFilter === "week") {
             const oneWeekAgo = new Date();
             oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
@@ -139,13 +138,9 @@ export default function ProgramMetricsDashboard() {
         const trackFieldByAge = {};
         const trackFieldByGender = { Male: 0, Female: 0 };
 
-        // AGE_CATEGORIES.forEach(age => {
-        //     trackFieldByAge[age] = 0;
-        // });
-
         trackFieldWins.forEach(win => {
-            if (win.ageCategory && trackFieldByAge.hasOwnProperty(win.ageCategory)) {
-                trackFieldByAge[win.ageCategory]++;
+            if (win.ageCategory) {
+                trackFieldByAge[win.ageCategory] = (trackFieldByAge[win.ageCategory] || 0) + 1;
             }
 
             if (win.genderCategory && trackFieldByGender.hasOwnProperty(win.genderCategory)) {
@@ -171,7 +166,6 @@ export default function ProgramMetricsDashboard() {
     // Prepare data for CSV export
     const csvData = {
         data: filteredData.map(item => ({
-            "Participant ID": item.participantId,
             "Participant Name": item.participantName,
             "Decision for Christ": item.decisionForChrist ? "Yes" : "No",
             "Holy Ghost Baptism": item.holyGhostBaptism ? "Yes" : "No",
@@ -187,7 +181,6 @@ export default function ProgramMetricsDashboard() {
             "Event Date": item.eventDate || ""
         })),
         headers: [
-            { label: "Participant ID", key: "Participant ID" },
             { label: "Participant Name", key: "Participant Name" },
             { label: "Decision for Christ", key: "Decision for Christ" },
             { label: "Holy Ghost Baptism", key: "Holy Ghost Baptism" },
@@ -444,12 +437,12 @@ export default function ProgramMetricsDashboard() {
                                 style={{ borderLeftColor: color }}
                             >
                                 <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium text-gray-900 text-sm">
-                    {team}
-                  </span>
+                                    <span className="font-medium text-gray-900 text-sm">
+                                        {team}
+                                    </span>
                                     <span className="text-lg font-bold" style={{ color }}>
-                    {wins}
-                  </span>
+                                        {wins}
+                                    </span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-2">
                                     <div
@@ -486,12 +479,12 @@ export default function ProgramMetricsDashboard() {
                                 style={{ borderLeftColor: "#FFD700" }}
                             >
                                 <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium text-gray-900 text-sm">
-                    {age}
-                  </span>
+                                    <span className="font-medium text-gray-900 text-sm">
+                                        {age}
+                                    </span>
                                     <span className="text-lg font-bold text-yellow-600">
-                    {wins}
-                  </span>
+                                        {wins}
+                                    </span>
                                 </div>
                             </div>
                         ))}

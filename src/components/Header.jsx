@@ -29,7 +29,7 @@ export default function Header() {
                 {/* Logo only - removed house badges */}
                 <div className="flex items-center space-x-4">
                     <Link
-                        to={currentUser ? "/profile" : "/login"}
+                        to="/"  // Changed to point to home page
                         className="flex items-center space-x-2 group"
                     >
                         <div className="w-10 h-10 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center text-white text-lg">
@@ -37,10 +37,10 @@ export default function Header() {
                         </div>
                         <div>
                             <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent group-hover:from-indigo-700 group-hover:to-purple-700 transition-all">
-                                House Registration
+                                Sports Fiesta 4.0
                             </h1>
                             <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">
-                                Teen Program System
+                                All Winners
                             </p>
                         </div>
                     </Link>
@@ -50,6 +50,9 @@ export default function Header() {
                 <nav className="hidden md:flex items-center space-x-2">
                     {currentUser ? (
                         <>
+                            <NavLink to="/" currentPath={location.pathname}>
+                                🏠 Home
+                            </NavLink>
                             <NavLink to="/register" currentPath={location.pathname}>
                                 📝 Teens Registration
                             </NavLink>
@@ -130,6 +133,9 @@ export default function Header() {
                         </>
                     ) : (
                         <>
+                            <NavLink to="/" currentPath={location.pathname}>
+                                🏠 Home
+                            </NavLink>
                             <NavLink to="/login" currentPath={location.pathname}>
                                 Login
                             </NavLink>
@@ -174,6 +180,9 @@ export default function Header() {
                 <div className="px-4 py-3 space-y-2">
                     {currentUser ? (
                         <>
+                            <MobileNavLink to="/" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
+                                🏠 Home
+                            </MobileNavLink>
                             <MobileNavLink to="/register" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
                                 📝 Registration
                             </MobileNavLink>
@@ -232,6 +241,9 @@ export default function Header() {
                         </>
                     ) : (
                         <>
+                            <MobileNavLink to="/" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
+                                🏠 Home
+                            </MobileNavLink>
                             <MobileNavLink to="/login" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
                                 Login
                             </MobileNavLink>
