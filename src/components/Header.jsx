@@ -56,11 +56,17 @@ export default function Header() {
                             <NavLink to="/staff-registration" currentPath={location.pathname}>
                                 👥 Marshal Registration
                             </NavLink>
+                            <NavLink to="/metrics-form" currentPath={location.pathname}>
+                                📋 Program Metrics
+                            </NavLink>
                             <NavLink to="/analysis" currentPath={location.pathname}>
                                 📊 Teens Analytics
                             </NavLink>
                             <NavLink to="/staff-dashboard" currentPath={location.pathname}>
                                 📈 Marshal Analytics
+                            </NavLink>
+                            <NavLink to="/metrics-dashboard" currentPath={location.pathname}>
+                                📉 Program Analytics
                             </NavLink>
                             <NavLink to="/profile" currentPath={location.pathname}>
                                 👤 Profile
@@ -171,8 +177,20 @@ export default function Header() {
                             <MobileNavLink to="/register" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
                                 📝 Registration
                             </MobileNavLink>
+                            <MobileNavLink to="/staff-registration" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
+                                👥 Marshal Registration
+                            </MobileNavLink>
+                            <MobileNavLink to="/metrics-form" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
+                                📋 Program Metrics
+                            </MobileNavLink>
                             <MobileNavLink to="/analysis" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
                                 📊 Analytics
+                            </MobileNavLink>
+                            <MobileNavLink to="/staff-dashboard" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
+                                📈 Marshal Analytics
+                            </MobileNavLink>
+                            <MobileNavLink to="/metrics-dashboard" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
+                                📉 Program Analytics
                             </MobileNavLink>
                             <MobileNavLink to="/profile" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
                                 👤 Profile
