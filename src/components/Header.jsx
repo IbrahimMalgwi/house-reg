@@ -3,10 +3,9 @@ import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
-import { HOUSES } from "../utils/houseMapping";
 
 export default function Header() {
-    const { currentUser, logout, userRole } = useAuth(); // Added userRole here
+    const { currentUser, logout, userRole } = useAuth();
     const { isDark, toggleTheme } = useTheme();
     const location = useLocation();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -27,7 +26,7 @@ export default function Header() {
             </a>
 
             <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-                {/* Logo and house badges */}
+                {/* Logo only - removed house badges */}
                 <div className="flex items-center space-x-4">
                     <Link
                         to={currentUser ? "/profile" : "/login"}
@@ -45,20 +44,6 @@ export default function Header() {
                             </p>
                         </div>
                     </Link>
-
-                    {/* Desktop house badges */}
-                    <div className="hidden md:flex flex-wrap items-center space-x-2">
-                        {Object.entries(HOUSES).map(([key, house]) => (
-                            <span
-                                key={key}
-                                className="text-xs px-2 py-1 rounded-full text-white font-medium shadow-sm"
-                                style={{ backgroundColor: house.color }}
-                                title={house.name}
-                            >
-                                {house.name.split(" ").pop()}
-                            </span>
-                        ))}
-                    </div>
                 </div>
 
                 {/* Desktop navigation */}
@@ -252,21 +237,7 @@ export default function Header() {
                     )}
                 </div>
 
-                {/* Mobile house badges */}
-                <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600">
-                    <div className="flex justify-center space-x-2">
-                        {Object.entries(HOUSES).map(([key, house]) => (
-                            <span
-                                key={key}
-                                className="text-xs px-2 py-1 rounded-full text-white font-medium"
-                                style={{ backgroundColor: house.color }}
-                                title={house.name}
-                            >
-                                {house.name.split(" ").pop()}
-                            </span>
-                        ))}
-                    </div>
-                </div>
+                {/* REMOVED: Mobile house badges section */}
             </nav>
         </header>
     );
