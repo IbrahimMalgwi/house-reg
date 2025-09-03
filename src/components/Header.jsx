@@ -66,16 +66,16 @@ export default function Header() {
                     {currentUser ? (
                         <>
                             <NavLink to="/register" currentPath={location.pathname}>
-                                📝 Registration
+                                📝 Teens Registration
                             </NavLink>
                             <NavLink to="/staff-registration" currentPath={location.pathname}>
-                                👥 Staff Registration
+                                👥 Marshal Registration
                             </NavLink>
                             <NavLink to="/analysis" currentPath={location.pathname}>
-                                📊 Analytics
+                                📊 Teens Analytics
                             </NavLink>
                             <NavLink to="/staff-dashboard" currentPath={location.pathname}>
-                                📈 Staff Analytics
+                                📈 Marshal Analytics
                             </NavLink>
                             <NavLink to="/profile" currentPath={location.pathname}>
                                 👤 Profile
