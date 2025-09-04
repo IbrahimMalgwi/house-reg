@@ -59,7 +59,7 @@ export default function Header() {
                                 📊 Analytics
                             </NavLink>
                             <NavLink to="/staff-dashboard" currentPath={location.pathname}>
-                                📈 Staff
+                                📈 Marshals
                             </NavLink>
                             <NavLink to="/metrics-dashboard" currentPath={location.pathname}>
                                 📉 Program

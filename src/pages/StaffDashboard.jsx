@@ -261,7 +261,7 @@ export default function StaffDashboard() {
         <div className="max-w-7xl mx-auto">
             {/* Header */}
             <div className="text-center mb-8 py-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl shadow-lg">
-                <h1 className="text-3xl font-bold mb-2">Staff Analytics Dashboard</h1>
+                <h1 className="text-3xl font-bold mb-2">Marshals Analytics Dashboard</h1>
                 <p className="text-xl opacity-90">Comprehensive overview of staff registrations</p>
             </div>
 

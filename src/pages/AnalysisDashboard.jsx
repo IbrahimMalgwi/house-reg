@@ -743,7 +743,7 @@ export default function Dashboard() {
     return (
         <div className="max-w-7xl mx-auto">
             <header className="text-center mb-8 py-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl shadow-lg">
-                <h1 className="text-3xl font-bold mb-2">Teen Program Dashboard</h1>
+                <h1 className="text-3xl font-bold mb-2">Teens Analytics Dashboard</h1>
                 <p className="text-xl opacity-90">Comprehensive overview of registrations and distributions</p>
             </header>
 
