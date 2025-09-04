@@ -9,7 +9,6 @@ import {
 } from "../utils/houseMapping";
 import { CSVLink } from "react-csv";
 
-
 // Import Chart.js and react-chartjs-2
 import {
     Chart as ChartJS,
@@ -49,7 +48,8 @@ function RegistrationTable({ registrations }) {
             reg.phone?.includes(searchTerm) ||
             reg.house?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             reg.sex?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            reg.religion?.toLowerCase().includes(searchTerm.toLowerCase())
+            reg.religion?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            reg.fiestaAttendance?.join(", ").toLowerCase().includes(searchTerm.toLowerCase())
         );
     }, [registrations, searchTerm]);
 
@@ -104,6 +104,7 @@ function RegistrationTable({ registrations }) {
             { label: "Phone", key: "phone" },
             { label: "Email", key: "email" },
             { label: "House", key: "house" },
+            { label: "Sports Fiesta Attendance", key: "fiestaAttendance" },
             { label: "Registration Date", key: "createdAt" }
         ];
 
@@ -115,6 +116,7 @@ function RegistrationTable({ registrations }) {
             phone: reg.phone || "",
             email: reg.email || "",
             house: reg.house || "",
+            fiestaAttendance: reg.fiestaAttendance ? reg.fiestaAttendance.join(", ") : "",
             createdAt: reg.createdAt ? new Date(reg.createdAt.seconds * 1000).toLocaleDateString() : ""
         }));
 
@@ -187,6 +189,9 @@ function RegistrationTable({ registrations }) {
                         >
                             House {sortConfig.key === 'house' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
                         </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            SF Attendance
+                        </th>
                         <th
                             className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                             onClick={() => handleSort('createdAt')}
@@ -206,9 +211,9 @@ function RegistrationTable({ registrations }) {
                                     <div className="text-sm text-gray-900">{registration.age}</div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                      {registration.sex}
-                    </span>
+                                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                        {registration.sex}
+                                    </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     {registration.religion}
@@ -218,15 +223,18 @@ function RegistrationTable({ registrations }) {
                                     <div className="text-sm text-gray-500">{registration.email}</div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full text-white"
-                          style={{
-                              backgroundColor: getHouseColor(
-                                  Object.keys(HOUSES).find(key => HOUSES[key].name === registration.house)
-                              )
-                          }}
-                    >
-                      {getShortHouseName(registration.house)}
-                    </span>
+                                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full text-white"
+                                          style={{
+                                              backgroundColor: getHouseColor(
+                                                  Object.keys(HOUSES).find(key => HOUSES[key].name === registration.house)
+                                              )
+                                          }}
+                                    >
+                                        {getShortHouseName(registration.house)}
+                                    </span>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {registration.fiestaAttendance?.join(", ") || "None"}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     {formatDate(registration.createdAt)}
@@ -235,7 +243,7 @@ function RegistrationTable({ registrations }) {
                         ))
                     ) : (
                         <tr>
-                            <td colSpan="7" className="px-6 py-4 text-center text-sm text-gray-500">
+                            <td colSpan="8" className="px-6 py-4 text-center text-sm text-gray-500">
                                 No registrations found
                             </td>
                         </tr>
@@ -251,8 +259,8 @@ function RegistrationTable({ registrations }) {
                         <p className="text-sm text-gray-700">
                             Showing <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> to{" "}
                             <span className="font-medium">
-                {Math.min(currentPage * itemsPerPage, sortedRegistrations.length)}
-              </span> of{" "}
+                                {Math.min(currentPage * itemsPerPage, sortedRegistrations.length)}
+                            </span> of{" "}
                             <span className="font-medium">{sortedRegistrations.length}</span> results
                         </p>
                     </div>
@@ -364,11 +372,11 @@ export default function Dashboard() {
                     }
                 }
 
-                // Normalize sex values - FIXED: Properly handle all gender options
+                // Normalize sex values
                 const sexValue = r.sex?.toLowerCase() || "";
                 let normalizedSex = "Unknown";
 
-// Check for exact matches first
+                // Check for exact matches first
                 if (sexValue === "male") {
                     normalizedSex = "Male";
                 } else if (sexValue === "female") {
@@ -376,7 +384,7 @@ export default function Dashboard() {
                 } else if (sexValue === "others") {
                     normalizedSex = "Others";
                 }
-// Then check for partial matches
+                // Then check for partial matches
                 else if (sexValue.includes("male")) {
                     normalizedSex = "Male";
                 } else if (sexValue.includes("female")) {
@@ -385,10 +393,14 @@ export default function Dashboard() {
                     normalizedSex = "Others";
                 }
 
+                // Ensure fiestaAttendance is always an array
+                const fiestaAttendance = Array.isArray(r.fiestaAttendance) ? r.fiestaAttendance : [];
+
                 return {
                     ...r,
                     house: normalizedHouse || "Unknown",
                     sex: normalizedSex,
+                    fiestaAttendance: fiestaAttendance
                 };
             });
 
@@ -441,6 +453,55 @@ export default function Dashboard() {
         }));
     };
 
+    // Calculate Sports Fiesta attendance statistics
+    const getFiestaAttendanceStats = () => {
+        const attendanceCounts = {
+            "1.0": 0,
+            "2.0": 0,
+            "3.0": 0,
+            "4.0": 0
+        };
+
+        const editionParticipation = {
+            "First Time": 0,
+            "Returning (2+ editions)": 0,
+            "All 4 editions": 0
+        };
+
+        registrations.forEach(reg => {
+            // Count attendance for each edition
+            reg.fiestaAttendance?.forEach(edition => {
+                if (attendanceCounts.hasOwnProperty(edition)) {
+                    attendanceCounts[edition]++;
+                }
+            });
+
+            // Count participation categories
+            const editionCount = reg.fiestaAttendance?.length || 0;
+            if (editionCount === 1) {
+                editionParticipation["First Time"]++;
+            } else if (editionCount >= 2 && editionCount < 4) {
+                editionParticipation["Returning (2+ editions)"]++;
+            } else if (editionCount >= 4) {
+                editionParticipation["All 4 editions"]++;
+            }
+        });
+
+        return {
+            byEdition: Object.entries(attendanceCounts).map(([edition, count]) => ({
+                edition,
+                count,
+                percentage: total > 0 ? ((count / total) * 100).toFixed(1) : "0.0"
+            })),
+            byParticipation: Object.entries(editionParticipation).map(([category, count]) => ({
+                category,
+                count,
+                percentage: total > 0 ? ((count / total) * 100).toFixed(1) : "0.0"
+            }))
+        };
+    };
+
+    const fiestaStats = getFiestaAttendanceStats();
     const houseData = aggregateData("house");
     const sexData = aggregateData("sex");
     const religionData = aggregateData("religion");
@@ -595,6 +656,71 @@ export default function Dashboard() {
         }
     };
 
+    const fiestaEditionChartData = {
+        labels: fiestaStats.byEdition.map(item => `Sports Fiesta ${item.edition}`),
+        datasets: [
+            {
+                label: 'Participants',
+                data: fiestaStats.byEdition.map(item => item.count),
+                backgroundColor: ['#FF0000', '#0000FF', '#FFD700', '#800080'],
+                borderWidth: 0,
+                borderRadius: 6,
+                barPercentage: 0.6
+            }
+        ]
+    };
+
+    const fiestaEditionChartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: {
+                    drawBorder: false
+                }
+            },
+            x: {
+                grid: {
+                    display: false
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
+    };
+
+    const fiestaParticipationChartData = {
+        labels: fiestaStats.byParticipation.map(item => item.category),
+        datasets: [
+            {
+                data: fiestaStats.byParticipation.map(item => item.count),
+                backgroundColor: ['#FF0000', '#0000FF', '#FFD700'],
+                borderWidth: 2,
+                borderColor: '#ffffff'
+            }
+        ]
+    };
+
+    const fiestaParticipationChartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    font: {
+                        size: 12
+                    },
+                    padding: 20
+                }
+            }
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-50 to-purple-100">
@@ -606,225 +732,284 @@ export default function Dashboard() {
         );
     }
 
-    if (loading) {
-        return (
-
-                <div className="flex items-center justify-center min-h-screen">
-                    <div className="text-center">
-                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600 mx-auto"></div>
-                        <p className="mt-4 text-lg text-gray-600">Loading dashboard data...</p>
-                    </div>
-                </div>
-
-        );
-    }
-
     return (
+        <div className="max-w-7xl mx-auto">
+            <header className="text-center mb-8 py-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl shadow-lg">
+                <h1 className="text-3xl font-bold mb-2">Teen Program Dashboard</h1>
+                <p className="text-xl opacity-90">Comprehensive overview of registrations and distributions</p>
+            </header>
 
-            <div className="max-w-7xl mx-auto">
-                <header className="text-center mb-8 py-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl shadow-lg">
-                    <h1 className="text-3xl font-bold mb-2">Teen Program Dashboard</h1>
-                    <p className="text-xl opacity-90">Comprehensive overview of registrations and distributions</p>
-                </header>
-            <div className="max-w-7xl mx-auto">
-
-                {/* Total Registration Card */}
-                <div className="bg-white rounded-2xl p-6 shadow-lg mb-6">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                            <div className="w-12 h-12 rounded-lg bg-indigo-100 flex items-center justify-center mr-4 text-indigo-600 text-xl">
-                                📊
-                            </div>
-                            <div>
-                                <h2 className="text-2xl font-semibold">Total Registrations</h2>
-                                <p className="text-gray-500">All participants in the teen program</p>
-                            </div>
+            {/* Total Registration Card */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg mb-6">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                        <div className="w-12 h-12 rounded-lg bg-indigo-100 flex items-center justify-center mr-4 text-indigo-600 text-xl">
+                            📊
                         </div>
-                        <div className="text-right">
-                            <div className="text-4xl font-bold text-indigo-600">{total}</div>
-                            <div className="text-sm text-gray-500">Participants</div>
+                        <div>
+                            <h2 className="text-2xl font-semibold">Total Registrations</h2>
+                            <p className="text-gray-500">All participants in the teen program</p>
                         </div>
                     </div>
-                    <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="bg-blue-50 p-4 rounded-lg flex items-center">
-                            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3 text-blue-600">
-                                👥
-                            </div>
-                            <div>
-                                <div className="text-sm text-blue-600">Gender Distribution</div>
-                                <div className="font-semibold">{allGenders.length} Categories</div>
-                            </div>
+                    <div className="text-right">
+                        <div className="text-4xl font-bold text-indigo-600">{total}</div>
+                        <div className="text-sm text-gray-500">Participants</div>
+                    </div>
+                </div>
+                <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="bg-blue-50 p-4 rounded-lg flex items-center">
+                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3 text-blue-600">
+                            👥
                         </div>
-                        <div className="bg-purple-50 p-4 rounded-lg flex items-center">
-                            <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3 text-purple-600">
-                                🏠
-                            </div>
-                            <div>
-                                <div className="text-sm text-purple-600">House Distribution</div>
-                                <div className="font-semibold">{houseData.length} Houses</div>
-                            </div>
+                        <div>
+                            <div className="text-sm text-blue-600">Gender Distribution</div>
+                            <div className="font-semibold">{allGenders.length} Categories</div>
                         </div>
-                        <div className="bg-green-50 p-4 rounded-lg flex items-center">
-                            <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3 text-green-600">
-                                🙏
-                            </div>
-                            <div>
-                                <div className="text-sm text-green-600">Religion Distribution</div>
-                                <div className="font-semibold">{religionData.length} Categories</div>
-                            </div>
+                    </div>
+                    <div className="bg-purple-50 p-4 rounded-lg flex items-center">
+                        <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3 text-purple-600">
+                            🏠
+                        </div>
+                        <div>
+                            <div className="text-sm text-purple-600">House Distribution</div>
+                            <div className="font-semibold">{houseData.length} Houses</div>
+                        </div>
+                    </div>
+                    <div className="bg-green-50 p-4 rounded-lg flex items-center">
+                        <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3 text-green-600">
+                            🙏
+                        </div>
+                        <div>
+                            <div className="text-sm text-green-600">Religion Distribution</div>
+                            <div className="font-semibold">{religionData.length} Categories</div>
+                        </div>
+                    </div>
+                    <div className="bg-yellow-50 p-4 rounded-lg flex items-center">
+                        <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center mr-3 text-yellow-600">
+                            🏆
+                        </div>
+                        <div>
+                            <div className="text-sm text-yellow-600">SF Editions</div>
+                            <div className="font-semibold">{fiestaStats.byEdition.length} Editions</div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                    {/* House Distribution Card */}
-                    <div className="bg-white rounded-2xl p-6 shadow-lg">
-                        <div className="flex items-center mb-6 pb-4 border-b border-gray-100">
-                            <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center mr-3 text-purple-600">
-                                🏠
-                            </div>
-                            <h2 className="text-2xl font-semibold">House Distribution</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                {/* House Distribution Card */}
+                <div className="bg-white rounded-2xl p-6 shadow-lg">
+                    <div className="flex items-center mb-6 pb-4 border-b border-gray-100">
+                        <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center mr-3 text-purple-600">
+                            🏠
                         </div>
-                        <div className="grid grid-cols-2 gap-4 mb-6">
-                            {houseData.map((h) => {
-                                const houseKey = Object.keys(HOUSES).find(key => HOUSES[key].name === h.name);
-                                const color = getHouseColor(houseKey);
-
-                                return (
-                                    <div
-                                        key={h.name}
-                                        className="p-4 rounded-xl text-center text-white shadow-md"
-                                        style={{ background: `linear-gradient(135deg, ${color}, ${color}AA)` }}
-                                    >
-                                        <div className="text-sm font-semibold uppercase tracking-wide">
-                                            {getShortHouseName(h.name)}
-                                        </div>
-                                        <div className="text-2xl font-bold my-2">{h.value}</div>
-                                        <div className="text-sm opacity-90">({h.percentage}%)</div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                        <div className="h-80">
-                            <Doughnut data={houseChartData} options={houseChartOptions} />
-                        </div>
+                        <h2 className="text-2xl font-semibold">House Distribution</h2>
                     </div>
+                    <div className="grid grid-cols-2 gap-4 mb-6">
+                        {houseData.map((h) => {
+                            const houseKey = Object.keys(HOUSES).find(key => HOUSES[key].name === h.name);
+                            const color = getHouseColor(houseKey);
 
-                    {/* Gender Distribution Card */}
-                    <div className="bg-white rounded-2xl p-6 shadow-lg">
-                        <div className="flex items-center mb-6 pb-4 border-b border-gray-100">
-                            <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center mr-3 text-blue-600">
-                                👥
-                            </div>
-                            <h2 className="text-2xl font-semibold">Gender Distribution</h2>
-                        </div>
-                        <div className="grid grid-cols-1 gap-3 mb-6">
-                            {allGenders.map((g) => {
-                                let colorClass = "text-gray-800";
-
-                                if (g.name.toLowerCase().includes("male")) {
-                                    colorClass = "text-red-600";
-                                } else if (g.name.toLowerCase().includes("female")) {
-                                    colorClass = "text-purple-600";
-                                } else if (g.name.toLowerCase().includes("other")) {
-                                    colorClass = "text-yellow-600";
-                                }
-
-                                return (
-                                    <div key={g.name} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                                        <span className="font-medium">{g.name}</span>
-                                        <div className="text-right">
-                                            <span className={`font-bold text-xl ${colorClass}`}>{g.value}</span>
-                                            <span className="text-sm text-gray-500 ml-2">({g.percentage}%)</span>
-                                        </div>
+                            return (
+                                <div
+                                    key={h.name}
+                                    className="p-4 rounded-xl text-center text-white shadow-md"
+                                    style={{ background: `linear-gradient(135deg, ${color}, ${color}AA)` }}
+                                >
+                                    <div className="text-sm font-semibold uppercase tracking-wide">
+                                        {getShortHouseName(h.name)}
                                     </div>
-                                );
-                            })}
+                                    <div className="text-2xl font-bold my-2">{h.value}</div>
+                                    <div className="text-sm opacity-90">({h.percentage}%)</div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                    <div className="h-80">
+                        <Doughnut data={houseChartData} options={houseChartOptions} />
+                    </div>
+                </div>
+
+                {/* Gender Distribution Card */}
+                <div className="bg-white rounded-2xl p-6 shadow-lg">
+                    <div className="flex items-center mb-6 pb-4 border-b border-gray-100">
+                        <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center mr-3 text-blue-600">
+                            👥
                         </div>
-                        <div className="h-64">
-                            <Pie data={genderChartData} options={genderChartOptions} />
+                        <h2 className="text-2xl font-semibold">Gender Distribution</h2>
+                    </div>
+                    <div className="grid grid-cols-1 gap-3 mb-6">
+                        {allGenders.map((g) => {
+                            let colorClass = "text-gray-800";
+
+                            if (g.name.toLowerCase().includes("male")) {
+                                colorClass = "text-red-600";
+                            } else if (g.name.toLowerCase().includes("female")) {
+                                colorClass = "text-purple-600";
+                            } else if (g.name.toLowerCase().includes("other")) {
+                                colorClass = "text-yellow-600";
+                            }
+
+                            return (
+                                <div key={g.name} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                    <span className="font-medium">{g.name}</span>
+                                    <div className="text-right">
+                                        <span className={`font-bold text-xl ${colorClass}`}>{g.value}</span>
+                                        <span className="text-sm text-gray-500 ml-2">({g.percentage}%)</span>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                    <div className="h-64">
+                        <Pie data={genderChartData} options={genderChartOptions} />
+                    </div>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                {/* Religion Distribution Card */}
+                <div className="bg-white rounded-2xl p-6 shadow-lg">
+                    <div className="flex items-center mb-6 pb-4 border-b border-gray-100">
+                        <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center mr-3 text-red-600">
+                            🙏
+                        </div>
+                        <h2 className="text-2xl font-semibold">Religion Distribution</h2>
+                    </div>
+                    <div className="grid grid-cols-1 gap-3 mb-6">
+                        {religionData.map((r) => {
+                            let colorClass = "text-gray-800";
+
+                            if (r.name.toLowerCase().includes("christian")) {
+                                colorClass = "text-blue-600";
+                            } else if (r.name.toLowerCase().includes("islam")) {
+                                colorClass = "text-yellow-600";
+                            } else if (r.name.toLowerCase().includes("other")) {
+                                colorClass = "text-purple-600";
+                            }
+
+                            return (
+                                <div key={r.name} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                    <span className="font-medium">{r.name}</span>
+                                    <div className="text-right">
+                                        <span className={`font-bold text-xl ${colorClass}`}>{r.value}</span>
+                                        <span className="text-sm text-gray-500 ml-2">({r.percentage}%)</span>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                    <div className="h-64">
+                        <Bar data={religionChartData} options={religionChartOptions} />
+                    </div>
+                </div>
+
+                {/* Age Distribution Card */}
+                <div className="bg-white rounded-2xl p-6 shadow-lg">
+                    <div className="flex items-center mb-6 pb-4 border-b border-gray-100">
+                        <div className="w-10 h-10 rounded-lg bg-yellow-100 flex items-center justify-center mr-3 text-yellow-600">
+                            🎂
+                        </div>
+                        <h2 className="text-2xl font-semibold">Age Distribution</h2>
+                    </div>
+                    <div className="grid grid-cols-1 gap-3 mb-6">
+                        {ageData.map((a) => {
+                            let colorClass = "text-gray-800";
+
+                            if (a.name === "13-17") {
+                                colorClass = "text-red-600";
+                            } else if (a.name === "18-25") {
+                                colorClass = "text-blue-600";
+                            } else if (a.name === "26+") {
+                                colorClass = "text-purple-600";
+                            }
+
+                            return (
+                                <div key={a.name} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                    <span className="font-medium">{a.name} years</span>
+                                    <div className="text-right">
+                                        <span className={`font-bold text-xl ${colorClass}`}>{a.value}</span>
+                                        <span className="text-sm text-gray-500 ml-2">({a.percentage}%)</span>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                    <div className="h-64">
+                        <Bar data={ageChartData} options={ageChartOptions} />
+                    </div>
+                </div>
+            </div>
+
+            {/* Sports Fiesta Attendance Card */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg mb-6">
+                <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center">
+                        <div className="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center mr-4 text-green-600 text-xl">
+                            🏆
+                        </div>
+                        <div>
+                            <h2 className="text-2xl font-semibold">Sports Fiesta Attendance</h2>
+                            <p className="text-gray-500">Participation across different editions</p>
                         </div>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* Religion Distribution Card */}
-                    <div className="bg-white rounded-2xl p-6 shadow-lg">
-                        <div className="flex items-center mb-6 pb-4 border-b border-gray-100">
-                            <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center mr-3 text-red-600">
-                                🙏
-                            </div>
-                            <h2 className="text-2xl font-semibold">Religion Distribution</h2>
-                        </div>
-                        <div className="grid grid-cols-1 gap-3 mb-6">
-                            {religionData.map((r) => {
-                                let colorClass = "text-gray-800";
-
-                                if (r.name.toLowerCase().includes("christian")) {
-                                    colorClass = "text-blue-600";
-                                } else if (r.name.toLowerCase().includes("islam")) {
-                                    colorClass = "text-yellow-600";
-                                } else if (r.name.toLowerCase().includes("other")) {
-                                    colorClass = "text-purple-600";
-                                }
-
-                                return (
-                                    <div key={r.name} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                                        <span className="font-medium">{r.name}</span>
-                                        <div className="text-right">
-                                            <span className={`font-bold text-xl ${colorClass}`}>{r.value}</span>
-                                            <span className="text-sm text-gray-500 ml-2">({r.percentage}%)</span>
-                                        </div>
+                    {/* Edition-wise Attendance */}
+                    <div>
+                        <h3 className="text-lg font-medium mb-4">Attendance by Edition</h3>
+                        <div className="grid grid-cols-2 gap-4 mb-6">
+                            {fiestaStats.byEdition.map(item => (
+                                <div
+                                    key={item.edition}
+                                    className="bg-gray-50 p-4 rounded-lg text-center"
+                                    title={`${item.count} out of ${total} participants attended Sports Fiesta ${item.edition}`}
+                                >
+                                    <div className="text-sm font-semibold text-gray-600">
+                                        SF {item.edition}
                                     </div>
-                                );
-                            })}
+                                    <div className="text-2xl font-bold text-indigo-600 my-1">
+                                        {item.count}
+                                    </div>
+                                    <div className="text-sm text-gray-500">
+                                        ({item.percentage}%)
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                         <div className="h-64">
-                            <Bar data={religionChartData} options={religionChartOptions} />
+                            <Bar data={fiestaEditionChartData} options={fiestaEditionChartOptions} />
                         </div>
                     </div>
 
-                    {/* Age Distribution Card */}
-                    <div className="bg-white rounded-2xl p-6 shadow-lg">
-                        <div className="flex items-center mb-6 pb-4 border-b border-gray-100">
-                            <div className="w-10 h-10 rounded-lg bg-yellow-100 flex items-center justify-center mr-3 text-yellow-600">
-                                🎂
-                            </div>
-                            <h2 className="text-2xl font-semibold">Age Distribution</h2>
-                        </div>
+                    {/* Participation Categories */}
+                    <div>
+                        <h3 className="text-lg font-medium mb-4">Participation Categories</h3>
                         <div className="grid grid-cols-1 gap-3 mb-6">
-                            {ageData.map((a) => {
-                                let colorClass = "text-gray-800";
-
-                                if (a.name === "13-17") {
-                                    colorClass = "text-red-600";
-                                } else if (a.name === "18-25") {
-                                    colorClass = "text-blue-600";
-                                } else if (a.name === "26+") {
-                                    colorClass = "text-purple-600";
-                                }
-
-                                return (
-                                    <div key={a.name} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                                        <span className="font-medium">{a.name} years</span>
-                                        <div className="text-right">
-                                            <span className={`font-bold text-xl ${colorClass}`}>{a.value}</span>
-                                            <span className="text-sm text-gray-500 ml-2">({a.percentage}%)</span>
-                                        </div>
+                            {fiestaStats.byParticipation.map(item => (
+                                <div
+                                    key={item.category}
+                                    className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+                                    title={`${item.count} participants (${item.percentage}%)`}
+                                >
+                                    <span className="font-medium">{item.category}</span>
+                                    <div className="text-right">
+                                        <span className="font-bold text-xl text-indigo-600">{item.count}</span>
+                                        <span className="text-sm text-gray-500 ml-2">({item.percentage}%)</span>
                                     </div>
-                                );
-                            })}
+                                </div>
+                            ))}
                         </div>
                         <div className="h-64">
-                            <Bar data={ageChartData} options={ageChartOptions} />
+                            <Doughnut data={fiestaParticipationChartData} options={fiestaParticipationChartOptions} />
                         </div>
                     </div>
                 </div>
-
-                {/* Registration Records Table */}
-                <RegistrationTable registrations={registrations} />
             </div>
-        </div>
 
+            {/* Registration Records Table */}
+            <RegistrationTable registrations={registrations} />
+        </div>
     );
 }

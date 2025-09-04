@@ -3,9 +3,6 @@ import React, { useState, useEffect } from "react";
 import { db } from "../firebase";
 import { collection, addDoc, serverTimestamp, getDocs } from "firebase/firestore";
 
-
-
-
 const houses = [
     {
         name: "Jesus Christ Our Saviour",
@@ -33,6 +30,15 @@ const houses = [
     },
 ];
 
+// Sports Fiesta editions
+const SPORTS_FIESTA_EDITIONS = [
+    { value: "1.0", label: "Sports Fiesta 1.0" },
+    { value: "2.0", label: "Sports Fiesta 2.0" },
+    { value: "3.0", label: "Sports Fiesta 3.0" },
+    { value: "4.0", label: "Sports Fiesta 4.0" }
+];
+
+
 export default function RegistrationForm({ onRegister, lastAssigned, clearLastAssigned }) {
     const [formData, setFormData] = useState({
         name: "",
@@ -41,6 +47,7 @@ export default function RegistrationForm({ onRegister, lastAssigned, clearLastAs
         religion: "",
         phone: "",
         email: "",
+        fiestaAttendance: []
     });
 
     const [loading, setLoading] = useState(false);
@@ -155,6 +162,24 @@ export default function RegistrationForm({ onRegister, lastAssigned, clearLastAs
         return Object.keys(newErrors).length === 0;
     };
 
+    const handleFiestaAttendanceChange = (edition) => {
+        setFormData(prev => {
+            if (prev.fiestaAttendance.includes(edition)) {
+                // Remove if already selected
+                return {
+                    ...prev,
+                    fiestaAttendance: prev.fiestaAttendance.filter(item => item !== edition)
+                };
+            } else {
+                // Add if not selected
+                return {
+                    ...prev,
+                    fiestaAttendance: [...prev.fiestaAttendance, edition]
+                };
+            }
+        });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (loading) return;
@@ -172,11 +197,16 @@ export default function RegistrationForm({ onRegister, lastAssigned, clearLastAs
             // ✅ Assign house using balanced algorithm
             const house = assignHouse();
 
+            // Ensure no duplicates when adding 4.0
+            const finalAttendance = Array.from(new Set([...formData.fiestaAttendance, "4.0"]));
+
+
             await addDoc(registrationsRef, {
                 ...formData,
                 house: house.name,
                 color: house.color,
                 createdAt: serverTimestamp(),
+                fiestaAttendance: fiestaAttendance
             });
 
             setSuccess({ ...house, participant: formData.name });
@@ -191,6 +221,7 @@ export default function RegistrationForm({ onRegister, lastAssigned, clearLastAs
                 religion: "",
                 phone: "",
                 email: "",
+                fiestaAttendance: []
             });
 
             setErrors({});
@@ -213,8 +244,8 @@ export default function RegistrationForm({ onRegister, lastAssigned, clearLastAs
 
     return (
 
-            <div className=" flex items-center justify-center py-8 px-4">
-                <div className="w-full max-w-md">
+        <div className=" flex items-center justify-center py-8 px-4">
+            <div className="w-full max-w-md">
                 <div className="bg-white p-8 rounded-2xl shadow-xl space-y-4">
                     <div className="text-center mb-6">
                         <h2 className="text-3xl font-bold text-indigo-700 mb-2">
@@ -357,6 +388,40 @@ export default function RegistrationForm({ onRegister, lastAssigned, clearLastAs
                             {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email}</p>}
                         </div>
 
+                        {/* Sports Fiesta Attendance */}
+                        <div className="border-t border-gray-200 pt-6">
+                            <h3 className="text-lg font-medium text-gray-900 mb-4">
+                                Sports Fiesta Attendance
+                            </h3>
+                            <p className="text-sm text-gray-600 mb-3">
+                                Which Sports Fiesta editions have you attended before? (Select all that apply)
+                            </p>
+
+                            <div className="space-y-2">
+                                {SPORTS_FIESTA_EDITIONS.map(edition => (
+                                    <div key={edition.value} className="flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            id={`fiesta-${edition.value}`}
+                                            checked={formData.fiestaAttendance.includes(edition.value)}
+                                            onChange={() => handleFiestaAttendanceChange(edition.value)}
+                                            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                                        />
+                                        <label
+                                            htmlFor={`fiesta-${edition.value}`}
+                                            className="ml-2 block text-sm text-gray-900"
+                                        >
+                                            {edition.label}
+                                        </label>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <p className="text-xs text-gray-500 mt-2">
+                                Note: Sports Fiesta 4.0 will be automatically added to your attendance.
+                            </p>
+                        </div>
+
                         {/* Submit Button */}
                         <button
                             type="submit"
@@ -382,9 +447,9 @@ export default function RegistrationForm({ onRegister, lastAssigned, clearLastAs
                     </form>
                 </div>
 
-                    {/* Success Modal */}
-                    {success && (
-                        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
+                {/* Success Modal */}
+                {success && (
+                    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
                         <div
                             className="bg-white p-6 rounded-xl shadow-lg text-center max-w-sm w-full animate-pop-in"
                             style={{ borderTop: `8px solid ${success.color}` }}
@@ -418,7 +483,7 @@ export default function RegistrationForm({ onRegister, lastAssigned, clearLastAs
                     </div>
                 )}
             </div>
-            </div>
+        </div>
 
     );
 }
