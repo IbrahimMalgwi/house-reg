@@ -197,16 +197,15 @@ export default function RegistrationForm({ onRegister, lastAssigned, clearLastAs
             // ✅ Assign house using balanced algorithm
             const house = assignHouse();
 
-            // Ensure no duplicates when adding 4.0
-            const finalAttendance = Array.from(new Set([...formData.fiestaAttendance, "4.0"]));
-
-
             await addDoc(registrationsRef, {
                 ...formData,
                 house: house.name,
                 color: house.color,
                 createdAt: serverTimestamp(),
-                fiestaAttendance: fiestaAttendance
+                // Ensure fiestaAttendance is always an array with current edition
+                fiestaAttendance: Array.isArray(formData.fiestaAttendance)
+                    ? [...formData.fiestaAttendance, "4.0"]
+                    : ["4.0"]
             });
 
             setSuccess({ ...house, participant: formData.name });
