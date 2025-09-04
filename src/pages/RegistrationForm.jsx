@@ -30,14 +30,15 @@ const houses = [
     },
 ];
 
-// Sports Fiesta editions
-const SPORTS_FIESTA_EDITIONS = [
+// Sports Fiesta editions - Only show 1.0, 2.0, and 3.0 in the UI
+const SPORTS_FIESTA_PREVIOUS_EDITIONS = [
     { value: "1.0", label: "Sports Fiesta 1.0" },
     { value: "2.0", label: "Sports Fiesta 2.0" },
-    { value: "3.0", label: "Sports Fiesta 3.0" },
-    { value: "4.0", label: "Sports Fiesta 4.0" }
+    { value: "3.0", label: "Sports Fiesta 3.0" }
 ];
 
+// Current edition that will be automatically recorded
+const CURRENT_EDITION = "4.0";
 
 export default function RegistrationForm({ onRegister, lastAssigned, clearLastAssigned }) {
     const [formData, setFormData] = useState({
@@ -204,8 +205,8 @@ export default function RegistrationForm({ onRegister, lastAssigned, clearLastAs
                 createdAt: serverTimestamp(),
                 // Ensure fiestaAttendance is always an array with current edition
                 fiestaAttendance: Array.isArray(formData.fiestaAttendance)
-                    ? [...formData.fiestaAttendance, "4.0"]
-                    : ["4.0"]
+                    ? [...formData.fiestaAttendance, CURRENT_EDITION]
+                    : [CURRENT_EDITION]
             });
 
             setSuccess({ ...house, participant: formData.name });
@@ -393,11 +394,11 @@ export default function RegistrationForm({ onRegister, lastAssigned, clearLastAs
                                 Sports Fiesta Attendance
                             </h3>
                             <p className="text-sm text-gray-600 mb-3">
-                                Which Sports Fiesta editions have you attended before? (Select all that apply)
+                                Which previous Sports Fiesta editions have you attended? (Select all that apply)
                             </p>
 
                             <div className="space-y-2">
-                                {SPORTS_FIESTA_EDITIONS.map(edition => (
+                                {SPORTS_FIESTA_PREVIOUS_EDITIONS.map(edition => (
                                     <div key={edition.value} className="flex items-center">
                                         <input
                                             type="checkbox"
@@ -417,7 +418,7 @@ export default function RegistrationForm({ onRegister, lastAssigned, clearLastAs
                             </div>
 
                             <p className="text-xs text-gray-500 mt-2">
-                                Note: Sports Fiesta 4.0 will be automatically added to your attendance.
+                                Note: Your attendance for Sports Fiesta 4.0 will be automatically recorded.
                             </p>
                         </div>
 

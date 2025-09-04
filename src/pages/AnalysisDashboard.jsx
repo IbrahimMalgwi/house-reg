@@ -463,9 +463,10 @@ export default function Dashboard() {
         };
 
         const editionParticipation = {
-            "First Time": 0,
-            "Returning (2+ editions)": 0,
-            "All 4 editions": 0
+            "First-timers (only 4.0)": 0,
+            "Attended 2 editions": 0,
+            "Attended 3 editions": 0,
+            "Attended all 4 editions": 0
         };
 
         registrations.forEach(reg => {
@@ -478,12 +479,19 @@ export default function Dashboard() {
 
             // Count participation categories
             const editionCount = reg.fiestaAttendance?.length || 0;
-            if (editionCount === 1) {
-                editionParticipation["First Time"]++;
-            } else if (editionCount >= 2 && editionCount < 4) {
-                editionParticipation["Returning (2+ editions)"]++;
-            } else if (editionCount >= 4) {
-                editionParticipation["All 4 editions"]++;
+            const hasAllEditions = reg.fiestaAttendance?.includes("1.0") &&
+                reg.fiestaAttendance?.includes("2.0") &&
+                reg.fiestaAttendance?.includes("3.0") &&
+                reg.fiestaAttendance?.includes("4.0");
+
+            if (hasAllEditions) {
+                editionParticipation["Attended all 4 editions"]++;
+            } else if (editionCount === 1 && reg.fiestaAttendance?.includes("4.0")) {
+                editionParticipation["First-timers (only 4.0)"]++;
+            } else if (editionCount === 2) {
+                editionParticipation["Attended 2 editions"]++;
+            } else if (editionCount === 3) {
+                editionParticipation["Attended 3 editions"]++;
             }
         });
 
@@ -698,7 +706,7 @@ export default function Dashboard() {
         datasets: [
             {
                 data: fiestaStats.byParticipation.map(item => item.count),
-                backgroundColor: ['#FF0000', '#0000FF', '#FFD700'],
+                backgroundColor: ['#FF0000', '#0000FF', '#FFD700', '#800080'],
                 borderWidth: 2,
                 borderColor: '#ffffff'
             }
