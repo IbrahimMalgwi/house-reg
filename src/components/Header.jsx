@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
+import logo from "../assets/images/logo.png";
 
 export default function Header() {
     const { currentUser, logout, userRole } = useAuth();
@@ -32,16 +33,8 @@ export default function Header() {
                         to="/"
                         className="flex items-center space-x-2 group"
                     >
-                        <div className="w-10 h-10 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center text-white text-lg">
-                            🏠
-                        </div>
                         <div className="hidden sm:block">
-                            <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent group-hover:from-indigo-700 group-hover:to-purple-700 transition-all">
-                                Sports Fiesta 4.0
-                            </h1>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                                All Winners
-                            </p>
+                            <img src={logo} alt="All Winners" className="h-10 w-auto rounded-lg shadow-md" />
                         </div>
                     </Link>
                 </div>
