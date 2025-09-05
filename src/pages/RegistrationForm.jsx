@@ -2,33 +2,11 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../firebase";
 import { collection, addDoc, serverTimestamp, getDocs } from "firebase/firestore";
-
-const houses = [
-    {
-        name: "Jesus Christ Our Saviour",
-        color: "#FF0000",
-        key: "saviour",
-        shortName: "Our Saviour"
-    },
-    {
-        name: "Jesus Christ The Holy Ghost Baptizer",
-        color: "#FFD700",
-        key: "holyGhost",
-        shortName: "Holy Ghost Baptizer"
-    },
-    {
-        name: "Jesus Christ Our Healer",
-        color: "#0000FF",
-        key: "healer",
-        shortName: "Our Healer"
-    },
-    {
-        name: "Jesus Christ Our Coming King",
-        color: "#800080",
-        key: "comingKing",
-        shortName: "Our Coming King"
-    },
-];
+// Import from the centralized house mapping
+import {
+    houses,
+    getHouseKeyByName,
+} from "../utils/houseMapping";
 
 // Sports Fiesta editions - Only show 1.0, 2.0, and 3.0 in the UI
 const SPORTS_FIESTA_PREVIOUS_EDITIONS = [
@@ -59,37 +37,21 @@ export default function RegistrationForm({ onRegister, lastAssigned, clearLastAs
 
     // Fetch current house counts from Firebase
     useEffect(() => {
-        // Helper function to get house key from name (moved inside useEffect)
-        const getHouseKey = (houseName) => {
-            const house = houses.find(h => {
-                const normalizedInput = houseName.toLowerCase();
-                return (
-                    normalizedInput === h.name.toLowerCase() ||
-                    (normalizedInput === "saviour" && h.name === "Jesus Christ Our Saviour") ||
-                    (normalizedInput === "holy ghost baptizer" && h.name === "Jesus Christ The Holy Ghost Baptizer") ||
-                    (normalizedInput === "healer" && h.name === "Jesus Christ Our Healer") ||
-                    (normalizedInput === "coming king" && h.name === "Jesus Christ Our Coming King")
-                );
-            });
-            return house ? house.key : null;
-        };
-
         async function fetchHouseCounts() {
             try {
                 const registrationsRef = collection(db, "registrations");
                 const snapshot = await getDocs(registrationsRef);
 
-                const counts = {
-                    saviour: 0,
-                    holyGhost: 0,
-                    healer: 0,
-                    comingKing: 0
-                };
+                // ✅ CORRECTED: Initialize counts dynamically
+                const counts = {};
+                houses.forEach(house => {
+                    counts[house.key] = 0;
+                });
 
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     if (data.house) {
-                        const houseKey = getHouseKey(data.house);
+                        const houseKey = getHouseKeyByName(data.house);
                         if (houseKey && counts.hasOwnProperty(houseKey)) {
                             counts[houseKey]++;
                         }
@@ -103,17 +65,16 @@ export default function RegistrationForm({ onRegister, lastAssigned, clearLastAs
         }
 
         fetchHouseCounts();
-    }, [success]); // Refetch when a new registration is successful
+    }, [success]);
 
-    // Smart house assignment algorithm
+
+    // Smart house assignment algorithm - OPTIMIZED
     const assignHouse = () => {
-        // If we don't have counts yet, fall back to random
         if (Object.keys(houseCounts).length === 0) {
             const random = Math.floor(Math.random() * houses.length);
             return houses[random];
         }
 
-        // Find the house with the minimum count
         let minCount = Infinity;
         let candidateHouses = [];
 
@@ -127,7 +88,6 @@ export default function RegistrationForm({ onRegister, lastAssigned, clearLastAs
             }
         });
 
-        // If multiple houses have the same minimum count, choose randomly among them
         const randomIndex = Math.floor(Math.random() * candidateHouses.length);
         return candidateHouses[randomIndex];
     };
@@ -258,9 +218,9 @@ export default function RegistrationForm({ onRegister, lastAssigned, clearLastAs
                             {houses.map(house => (
                                 <div key={house.key} className="flex items-center justify-center p-2 rounded-md"
                                      style={{ backgroundColor: `${house.color}20`, borderLeft: `3px solid ${house.color}` }}>
-                                    <span className="font-medium" style={{ color: house.color }}>
-                                        {house.name}: {houseCounts[house.key] || 0}
-                                    </span>
+                            <span className="font-medium" style={{ color: house.color }}>
+                                {house.shortName}: {houseCounts.hasOwnProperty(house.key) ? houseCounts[house.key] : 0}
+                            </span>
                                 </div>
                             ))}
                         </div>
@@ -457,7 +417,7 @@ export default function RegistrationForm({ onRegister, lastAssigned, clearLastAs
                             <div className="mb-4">
                                 <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center" style={{ backgroundColor: `${success.color}20` }}>
                                     <svg className="w-8 h-8" style={{ color: success.color }} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19-7"></path>
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                                     </svg>
                                 </div>
                             </div>

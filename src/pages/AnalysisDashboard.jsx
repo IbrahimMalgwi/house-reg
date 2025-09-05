@@ -3,9 +3,10 @@ import React, { useEffect, useState, useMemo } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 import {
-    HOUSES,
+    houses,
     getShortHouseName,
     getHouseColor,
+    getHouseKeyByName,
 } from "../utils/houseMapping";
 import { CSVLink } from "react-csv";
 
@@ -82,7 +83,7 @@ function RegistrationTable({ registrations }) {
 
     // Handle sort request
     const handleSort = (key) => {
-        let direction = 'ascending';
+        let direction = 'ascening';
         if (sortConfig.key === key && sortConfig.direction === 'ascending') {
             direction = 'descending';
         }
@@ -211,9 +212,9 @@ function RegistrationTable({ registrations }) {
                                     <div className="text-sm text-gray-900">{registration.age}</div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                        {registration.sex}
-                                    </span>
+                                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                            {registration.sex}
+                                        </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     {registration.religion}
@@ -223,15 +224,15 @@ function RegistrationTable({ registrations }) {
                                     <div className="text-sm text-gray-500">{registration.email}</div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full text-white"
-                                          style={{
-                                              backgroundColor: getHouseColor(
-                                                  Object.keys(HOUSES).find(key => HOUSES[key].name === registration.house)
-                                              )
-                                          }}
-                                    >
-                                        {getShortHouseName(registration.house)}
-                                    </span>
+                                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full text-white"
+                                              style={{
+                                                  backgroundColor: getHouseColor(
+                                                      getHouseKeyByName(registration.house)
+                                                  )
+                                              }}
+                                        >
+                                            {getShortHouseName(registration.house)}
+                                        </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     {registration.fiestaAttendance?.join(", ") || "None"}
@@ -302,10 +303,9 @@ function RegistrationTable({ registrations }) {
                                     <button
                                         key={pageNum}
                                         onClick={() => handlePageChange(pageNum)}
-                                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                                            currentPage === pageNum
-                                                ? "z-10 bg-indigo-50 border-indigo-500 text-indigo-600"
-                                                : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
+                                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${currentPage === pageNum
+                                            ? "z-10 bg-indigo-50 border-indigo-500 text-indigo-600"
+                                            : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
                                         }`}
                                     >
                                         {pageNum}
@@ -337,36 +337,28 @@ export default function Dashboard() {
             const snapshot = await getDocs(collection(db, "registrations"));
             const docs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
-            // Normalize house values
+            // Normalize house values using the new house structure
             const normalized = docs.map((r) => {
                 const houseValue = r.house?.toLowerCase() || "";
                 let normalizedHouse = null;
 
-                // Check for "Our Coming King" variations
-                if (houseValue.includes("coming king") || houseValue.includes("our coming king")) {
-                    normalizedHouse = HOUSES.PURPLE.name;
+                // First try to find by houseKey if it exists
+                if (r.houseKey) {
+                    const house = houses.find(h => h.key === r.houseKey);
+                    if (house) {
+                        normalizedHouse = house.name;
+                    }
                 }
-                // Check for "Our Saviour" variations
-                else if (houseValue.includes("saviour") || houseValue.includes("savior")) {
-                    normalizedHouse = HOUSES.RED.name;
-                }
-                // Check for "Our Healer" variations
-                else if (houseValue.includes("healer") || houseValue.includes("our healer")) {
-                    normalizedHouse = HOUSES.BLUE.name;
-                }
-                // Check for "Holy Ghost" variations
-                else if (houseValue.includes("holy ghost") || houseValue.includes("baptizer")) {
-                    normalizedHouse = HOUSES.YELLOW.name;
-                }
-                // Try to match against HOUSES as fallback
-                else {
-                    for (const key of Object.keys(HOUSES)) {
-                        const h = HOUSES[key];
+
+                // If not found by key, try to match by name variations
+                if (!normalizedHouse) {
+                    for (const house of houses) {
                         if (
-                            houseValue.includes(h.name.toLowerCase()) ||
-                            r.houseKey === key
+                            houseValue.includes(house.name.toLowerCase()) ||
+                            houseValue.includes(house.shortName.toLowerCase()) ||
+                            houseValue.includes(house.key.toLowerCase())
                         ) {
-                            normalizedHouse = h.name;
+                            normalizedHouse = house.name;
                             break;
                         }
                     }
@@ -536,7 +528,7 @@ export default function Dashboard() {
             {
                 data: houseData.map(h => h.value),
                 backgroundColor: houseData.map(h => {
-                    const houseKey = Object.keys(HOUSES).find(key => HOUSES[key].name === h.name);
+                    const houseKey = getHouseKeyByName(h.name);
                     return getHouseColor(houseKey);
                 }),
                 borderWidth: 2,
@@ -815,7 +807,7 @@ export default function Dashboard() {
                     </div>
                     <div className="grid grid-cols-2 gap-4 mb-6">
                         {houseData.map((h) => {
-                            const houseKey = Object.keys(HOUSES).find(key => HOUSES[key].name === h.name);
+                            const houseKey = getHouseKeyByName(h.name); // ✅ correct way
                             const color = getHouseColor(houseKey);
 
                             return (
