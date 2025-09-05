@@ -1,7 +1,7 @@
 // src/pages/RegistrationForm.jsx
 import React, { useState, useEffect } from "react";
 import { db } from "../firebase";
-import { collection, addDoc, serverTimestamp, getDocs } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, getDocs, query, where } from "firebase/firestore";
 // Import from the centralized house mapping
 import {
     houses,
@@ -34,6 +34,8 @@ export default function RegistrationForm({ onRegister, lastAssigned, clearLastAs
     const [errors, setErrors] = useState({});
     const [firebaseError, setFirebaseError] = useState("");
     const [houseCounts, setHouseCounts] = useState({});
+    const [duplicateFound, setDuplicateFound] = useState(null);
+    const [existingRegistrations, setExistingRegistrations] = useState([]);
 
     // Fetch current house counts from Firebase
     useEffect(() => {
@@ -67,6 +69,32 @@ export default function RegistrationForm({ onRegister, lastAssigned, clearLastAs
         fetchHouseCounts();
     }, [success]);
 
+    // Check for duplicate registrations
+    const checkForDuplicates = async (name, age, sex) => {
+        try {
+            const registrationsRef = collection(db, "registrations");
+
+            // Create query to find potential duplicates
+            const q = query(
+                registrationsRef,
+                where("name", "==", name.trim()),
+                where("age", "==", age),
+                where("sex", "==", sex)
+            );
+
+            const querySnapshot = await getDocs(q);
+            const duplicates = [];
+
+            querySnapshot.forEach((doc) => {
+                duplicates.push({ id: doc.id, ...doc.data() });
+            });
+
+            return duplicates;
+        } catch (error) {
+            console.error("Error checking for duplicates:", error);
+            return [];
+        }
+    };
 
     // Smart house assignment algorithm - OPTIMIZED
     const assignHouse = () => {
@@ -153,6 +181,32 @@ export default function RegistrationForm({ onRegister, lastAssigned, clearLastAs
         setFirebaseError(""); // Clear previous errors
 
         try {
+            // Check for duplicates before proceeding
+            const duplicates = await checkForDuplicates(formData.name, formData.age, formData.sex);
+
+            if (duplicates.length > 0) {
+                setExistingRegistrations(duplicates);
+                setDuplicateFound({
+                    name: formData.name,
+                    age: formData.age,
+                    sex: formData.sex,
+                    count: duplicates.length
+                });
+                setLoading(false);
+                return;
+            }
+
+            // If no duplicates, proceed with registration
+            await completeRegistration();
+        } catch (err) {
+            console.error("Error during registration:", err);
+            setFirebaseError(err.message || "Something went wrong. Please check your Firebase configuration.");
+            setLoading(false);
+        }
+    };
+
+    const completeRegistration = async () => {
+        try {
             const registrationsRef = collection(db, "registrations");
 
             // ✅ Assign house using balanced algorithm
@@ -193,6 +247,18 @@ export default function RegistrationForm({ onRegister, lastAssigned, clearLastAs
         }
     };
 
+    const handleContinueRegistration = () => {
+        setDuplicateFound(null);
+        setExistingRegistrations([]);
+        completeRegistration();
+    };
+
+    const handleCancelRegistration = () => {
+        setDuplicateFound(null);
+        setExistingRegistrations([]);
+        setLoading(false);
+    };
+
     const handleChange = (field, value) => {
         setFormData({ ...formData, [field]: value });
 
@@ -203,8 +269,7 @@ export default function RegistrationForm({ onRegister, lastAssigned, clearLastAs
     };
 
     return (
-
-        <div className=" flex items-center justify-center py-8 px-4">
+        <div className="flex items-center justify-center py-8 px-4">
             <div className="w-full max-w-md">
                 <div className="bg-white p-8 rounded-2xl shadow-xl space-y-4">
                     <div className="text-center mb-6">
@@ -442,8 +507,64 @@ export default function RegistrationForm({ onRegister, lastAssigned, clearLastAs
                         </div>
                     </div>
                 )}
+
+                {/* Duplicate Warning Modal */}
+                {duplicateFound && (
+                    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
+                        <div className="bg-white p-6 rounded-xl shadow-lg text-center max-w-md w-full animate-pop-in">
+                            <div className="mb-4">
+                                <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center bg-yellow-100">
+                                    <svg className="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                                Potential Duplicate Found!
+                            </h3>
+                            <p className="mt-3 text-gray-600">
+                                We found <strong>{duplicateFound.count}</strong> existing registration(s) for:
+                            </p>
+                            <div className="my-4 p-4 bg-yellow-50 rounded-lg">
+                                <p className="font-medium">
+                                    {duplicateFound.name}, {duplicateFound.age} years, {duplicateFound.sex}
+                                </p>
+                            </div>
+
+                            {existingRegistrations.length > 0 && (
+                                <div className="my-4 p-4 bg-gray-50 rounded-lg text-left max-h-40 overflow-y-auto">
+                                    <p className="font-medium text-sm mb-2">Existing registrations:</p>
+                                    {existingRegistrations.map((reg, index) => (
+                                        <div key={index} className="text-xs text-gray-600 mb-1">
+                                            • {reg.house} House - {reg.createdAt ? new Date(reg.createdAt.seconds * 1000).toLocaleDateString() : 'Unknown date'}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            <p className="text-sm text-gray-500 mb-4">
+                                Are you sure you want to register this person again?
+                            </p>
+
+                            <div className="flex gap-3 justify-center">
+                                <button
+                                    onClick={handleCancelRegistration}
+                                    className="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleContinueRegistration}
+                                    className="px-6 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
+                                >
+                                    Register Anyway
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
-
     );
 }
