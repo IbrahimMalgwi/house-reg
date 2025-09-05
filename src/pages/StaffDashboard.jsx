@@ -54,6 +54,15 @@ const DESIGNATION_COLORS = {
     "Other": "#6b7280" // Gray
 };
 
+// Color palette for organizations - using vibrant, distinct colors
+const ORGANIZATION_COLORS = [
+    '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFBE0B',
+    '#FB5607', '#8338EC', '#3A86FF', '#FF006E',
+    '#04E762', '#F9C80E', '#F86624', '#662E9B',
+    '#43BCCD', '#F72585', '#7209B7', '#3A0CA3',
+    '#4361EE', '#4CC9F0', '#F72585', '#560BAD'
+];
+
 export default function StaffDashboard() {
     const [staffData, setStaffData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -206,13 +215,16 @@ export default function StaffDashboard() {
         .sort(([,a], [,b]) => b - a)
         .slice(0, 8);
 
+    // Generate different colors for each organization
     const organizationChartData = {
         labels: topOrganizations.map(([org]) => org.length > 20 ? org.substring(0, 20) + '...' : org),
         datasets: [
             {
                 label: 'Staff Count',
                 data: topOrganizations.map(([, count]) => count),
-                backgroundColor: '#4F46E5',
+                backgroundColor: topOrganizations.map((_, index) =>
+                    ORGANIZATION_COLORS[index % ORGANIZATION_COLORS.length]
+                ),
                 borderWidth: 0,
                 borderRadius: 6,
                 barPercentage: 0.7
@@ -242,6 +254,17 @@ export default function StaffDashboard() {
         plugins: {
             legend: {
                 display: false
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return `${context.dataset.label}: ${context.raw}`;
+                    },
+                    title: function(context) {
+                        const fullOrgName = topOrganizations[context[0].dataIndex][0];
+                        return fullOrgName;
+                    }
+                }
             }
         }
     };
