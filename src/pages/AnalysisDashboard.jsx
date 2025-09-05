@@ -421,9 +421,10 @@ export default function Dashboard() {
         }));
     };
 
-    // Age group calculation
+    // Age group calculation - UPDATED with 12 and below
     const getAgeGroups = () => {
         const groups = {
+            "0 - 12": 0,
             "13-17": 0,
             "18-25": 0,
             "26+": 0,
@@ -432,7 +433,8 @@ export default function Dashboard() {
         registrations.forEach((r) => {
             if (r.age) {
                 const age = parseInt(r.age);
-                if (age <= 17) groups["13-17"]++;
+                if (age <= 12) groups["0 - 12"]++;
+                else if (age <= 17) groups["13-17"]++;
                 else if (age <= 25) groups["18-25"]++;
                 else groups["26+"]++;
             }
@@ -619,13 +621,14 @@ export default function Dashboard() {
         }
     };
 
+    // Updated age chart data with new color for 12 and below
     const ageChartData = {
         labels: ageData.map(a => a.name),
         datasets: [
             {
                 label: 'Participants',
                 data: ageData.map(a => a.value),
-                backgroundColor: ['#FF0000', '#0000FF', '#800080'],
+                backgroundColor: ['#FFD700', '#FF0000', '#0000FF', '#800080'], // Green, Red, Blue, Purple
                 borderWidth: 0,
                 borderRadius: 6,
                 barPercentage: 0.6
@@ -904,7 +907,7 @@ export default function Dashboard() {
                     </div>
                 </div>
 
-                {/* Age Distribution Card */}
+                {/* Age Distribution Card - UPDATED with 12 and below */}
                 <div className="bg-white rounded-2xl p-6 shadow-lg">
                     <div className="flex items-center mb-6 pb-4 border-b border-gray-100">
                         <div className="w-10 h-10 rounded-lg bg-yellow-100 flex items-center justify-center mr-3 text-yellow-600">
@@ -916,7 +919,9 @@ export default function Dashboard() {
                         {ageData.map((a) => {
                             let colorClass = "text-gray-800";
 
-                            if (a.name === "13-17") {
+                            if (a.name === "0 - 12") {
+                                colorClass = "text-yellow-600";
+                            } else if (a.name === "13-17") {
                                 colorClass = "text-red-600";
                             } else if (a.name === "18-25") {
                                 colorClass = "text-blue-600";
@@ -926,7 +931,7 @@ export default function Dashboard() {
 
                             return (
                                 <div key={a.name} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                                    <span className="font-medium">{a.name} years</span>
+                                    <span className="font-medium">{a.name} {a.name !== "26+" && "years"}</span>
                                     <div className="text-right">
                                         <span className={`font-bold text-xl ${colorClass}`}>{a.value}</span>
                                         <span className="text-sm text-gray-500 ml-2">({a.percentage}%)</span>
@@ -940,6 +945,7 @@ export default function Dashboard() {
                     </div>
                 </div>
             </div>
+
 
             {/* Sports Fiesta Attendance Card */}
             <div className="bg-white rounded-2xl p-6 shadow-lg mb-6">
