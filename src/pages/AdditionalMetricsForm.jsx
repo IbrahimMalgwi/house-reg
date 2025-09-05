@@ -48,7 +48,7 @@ export default function AdditionalMetricsForm() {
     });
 
     const [submitting, setSubmitting] = useState(false);
-    const [success, setSuccess] = useState(false);
+    const [success, setSuccess] = useState(null);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -68,7 +68,17 @@ export default function AdditionalMetricsForm() {
                 createdAt: serverTimestamp()
             });
 
-            setSuccess(true);
+            // Set success data for the modal
+            setSuccess({
+                participantName: formData.participantName,
+                decisionForChrist: formData.decisionForChrist,
+                holyGhostBaptism: formData.holyGhostBaptism,
+                teamWin: formData.teamWin,
+                winningTeam: formData.winningTeam,
+                position: formData.position,
+                sportCategory: formData.sportCategory
+            });
+
             // Reset form
             setFormData({
                 participantName: "",
@@ -84,8 +94,6 @@ export default function AdditionalMetricsForm() {
                 sportCategory: "",
                 eventDate: new Date().toISOString().split('T')[0]
             });
-
-            setTimeout(() => setSuccess(false), 3000);
         } catch (error) {
             console.error("Error submitting form:", error);
             alert("There was an error submitting the form. Please try again.");
@@ -101,12 +109,6 @@ export default function AdditionalMetricsForm() {
                     <h1 className="text-3xl font-bold mb-2">Program Metrics Form</h1>
                     <p className="text-xl opacity-90">Record spiritual decisions, injuries, counseling, and team wins</p>
                 </div>
-
-                {success && (
-                    <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
-                        Data submitted successfully!
-                    </div>
-                )}
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Participant Information */}
@@ -154,7 +156,7 @@ export default function AdditionalMetricsForm() {
                                     id="holyGhostBaptism"
                                     name="holyGhostBaptism"
                                     checked={formData.holyGhostBaptism}
-                                    onChange= {handleChange}
+                                    onChange={handleChange}
                                     className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                                 />
                                 <label htmlFor="holyGhostBaptism" className="ml-2 block text-sm text-gray-900">
@@ -340,6 +342,59 @@ export default function AdditionalMetricsForm() {
                     </div>
                 </form>
             </div>
+
+            {/* Success Modal */}
+            {success && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
+                    <div
+                        className="bg-white p-6 rounded-xl shadow-lg text-center max-w-sm w-full animate-pop-in"
+                        style={{ borderTop: "8px solid #4f46e5" }}
+                    >
+                        <div className="mb-4">
+                            <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center" style={{ backgroundColor: "#4f46e520" }}>
+                                <svg className="w-8 h-8" style={{ color: "#4f46e5" }} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                            Metrics Recorded Successfully!
+                        </h3>
+
+                        <p className="mt-3 text-gray-600">
+                            Data for <strong className="text-gray-800">{success.participantName}</strong> has been recorded.
+                        </p>
+
+                        {success.decisionForChrist && (
+                            <div className="my-2 p-2 bg-green-100 rounded-lg">
+                                <span className="text-green-700 font-medium">✓ Decision for Christ</span>
+                            </div>
+                        )}
+
+                        {success.holyGhostBaptism && (
+                            <div className="my-2 p-2 bg-blue-100 rounded-lg">
+                                <span className="text-blue-700 font-medium">✓ Holy Ghost Baptism</span>
+                            </div>
+                        )}
+
+                        {success.teamWin && (
+                            <div className="my-2 p-2 bg-purple-100 rounded-lg">
+                                <span className="text-purple-700 font-medium">
+                                    {success.winningTeam} - {success.position} in {success.sportCategory}
+                                </span>
+                            </div>
+                        )}
+
+                        <button
+                            onClick={() => setSuccess(null)}
+                            className="mt-4 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                        >
+                            Continue
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
