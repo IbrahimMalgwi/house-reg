@@ -12,7 +12,6 @@ const TEAMS = {
 };
 
 // Define updated sports categories with gender and age group requirements
-// Define updated sports categories with gender and age group requirements
 const SPORTS = [
     { name: "Basketball", hasGender: true, hasAgeGroup: false },
     { name: "Volleyball", hasGender: true, hasAgeGroup: false },
