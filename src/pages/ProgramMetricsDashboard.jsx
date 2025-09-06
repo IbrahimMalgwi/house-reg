@@ -49,7 +49,7 @@ const SPORTS = [
     { name: "50 Meters", hasGender: true, hasAgeGroup: false },
     { name: "70 Meters", hasGender: true, hasAgeGroup: false },
     { name: "100 Meters", hasGender: true, hasAgeGroup: false },
-    { name: "800 Meters", hasGender: true, hasAgeGroup: false }, // Added 800 Meters
+    { name: "800 Meters", hasGender: true, hasAgeGroup: false },
     { name: "4 x 100 Meters Relay", hasGender: true, hasAgeGroup: false },
     { name: "4 x 400 Meters Relay", hasGender: true, hasAgeGroup: false },
     { name: "Long Jump", hasGender: true, hasAgeGroup: false },
@@ -142,6 +142,16 @@ export default function ProgramMetricsDashboard() {
             });
         });
 
+        // Wins by sport and gender
+        const winsBySportAndGender = {};
+        SPORTS.forEach(sport => {
+            winsBySportAndGender[sport.name] = {
+                "Male": 0,
+                "Female": 0,
+                "Total": 0
+            };
+        });
+
         // Wins by position (1st, 2nd, 3rd)
         const winsByPosition = {
             "1st Place": 0,
@@ -168,6 +178,12 @@ export default function ProgramMetricsDashboard() {
             // Count wins by gender
             if (win.sportGender && winsByGender.hasOwnProperty(win.sportGender)) {
                 winsByGender[win.sportGender]++;
+            }
+
+            // Count wins by sport and gender
+            if (win.sportCategory && win.sportGender && winsBySportAndGender[win.sportCategory]) {
+                winsBySportAndGender[win.sportCategory][win.sportGender]++;
+                winsBySportAndGender[win.sportCategory].Total++;
             }
 
             // Count wins by team and gender
@@ -237,6 +253,7 @@ export default function ProgramMetricsDashboard() {
             winsByGender,
             winsByTeamAndGender,
             winsBySport,
+            winsBySportAndGender,
             winsByPosition,
             teamPositions,
             sportRankings,
@@ -287,7 +304,7 @@ export default function ProgramMetricsDashboard() {
         labels: ["Decisions for Christ", "Holy Ghost Baptisms", "Injuries", "Counseling Sessions"],
         datasets: [
             {
-                data: [metrics.decisionsForChrist, metrics.holyGhostBaptisms, metrics.injures, metrics.counselingSessions],
+                data: [metrics.decisionsForChrist, metrics.holyGhostBaptisms, metrics.injuries, metrics.counselingSessions],
                 backgroundColor: ["#4CAF50", "#FFD700", "#FF0000", "#2196F3"],
                 borderWidth: 2,
                 borderColor: '#ffffff'
@@ -355,6 +372,27 @@ export default function ProgramMetricsDashboard() {
                     const teamName = TEAMS[key].name;
                     return metrics.winsByTeamAndGender[teamName]?.Female || 0;
                 }),
+                backgroundColor: '#e74c3c',
+            }
+        ]
+    };
+
+    // Chart data for wins by sport and gender
+    const sportGenderWinsChartData = {
+        labels: Object.keys(metrics.winsBySportAndGender),
+        datasets: [
+            {
+                label: 'Male',
+                data: Object.keys(metrics.winsBySportAndGender).map(sport =>
+                    metrics.winsBySportAndGender[sport]?.Male || 0
+                ),
+                backgroundColor: '#3498db',
+            },
+            {
+                label: 'Female',
+                data: Object.keys(metrics.winsBySportAndGender).map(sport =>
+                    metrics.winsBySportAndGender[sport]?.Female || 0
+                ),
                 backgroundColor: '#e74c3c',
             }
         ]
@@ -542,6 +580,75 @@ export default function ProgramMetricsDashboard() {
                             }
                         }}
                     />
+                </div>
+            </div>
+
+            {/* Wins by Sport and Gender (Stacked Bar Chart) */}
+            <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
+                <div className="flex items-center mb-6">
+                    <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center mr-3 text-purple-600">
+                        🏅
+                    </div>
+                    <h2 className="text-2xl font-semibold">Wins by Sport and Gender</h2>
+                </div>
+                <div className="h-96">
+                    <Bar
+                        data={sportGenderWinsChartData}
+                        options={{
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { position: 'top' },
+                                title: { display: true, text: 'Wins by Sport and Gender' }
+                            },
+                            scales: {
+                                x: {
+                                    stacked: true,
+                                },
+                                y: {
+                                    stacked: true,
+                                    beginAtZero: true
+                                }
+                            }
+                        }}
+                    />
+                </div>
+            </div>
+
+            {/* Sport Wins by Gender Breakdown */}
+            <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
+                <div className="flex items-center mb-6">
+                    <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center mr-3 text-green-600">
+                        🏆
+                    </div>
+                    <h2 className="text-2xl font-semibold">Sport Wins by Gender</h2>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {Object.entries(metrics.winsBySportAndGender)
+                        .filter(([sport, data]) => data.Total > 0)
+                        .map(([sport, genderData]) => (
+                            <div key={sport} className="bg-gray-50 p-4 rounded-lg border-l-4 border-indigo-400">
+                                <h3 className="text-lg font-semibold mb-3 text-center text-indigo-600">
+                                    {sport}
+                                </h3>
+                                <div className="space-y-2">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm font-medium text-gray-700">Male Wins</span>
+                                        <span className="font-bold text-blue-600">{genderData.Male}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm font-medium text-gray-700">Female Wins</span>
+                                        <span className="font-bold text-red-600">{genderData.Female}</span>
+                                    </div>
+                                    <div className="border-t pt-2 mt-2">
+                                        <div className="flex justify-between items-center font-semibold">
+                                            <span>Total Wins</span>
+                                            <span className="text-indigo-600">{genderData.Total}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
                 </div>
             </div>
 
