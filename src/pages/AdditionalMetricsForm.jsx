@@ -16,7 +16,7 @@ const SPORTS = [
     { name: "Basketball", hasGender: true, hasAgeGroup: false },
     { name: "Volleyball", hasGender: true, hasAgeGroup: false },
     { name: "Football", hasGender: true, hasAgeGroup: true },
-    { name: "Relley", hasGender: false, hasAgeGroup: false },
+    { name: "relay", hasGender: false, hasAgeGroup: false },
     { name: "50 Meters", hasGender: true, hasAgeGroup: false },
     { name: "70 Meters", hasGender: true, hasAgeGroup: false },
     { name: "100 Meters", hasGender: true, hasAgeGroup: false },
@@ -122,7 +122,7 @@ export default function AdditionalMetricsForm() {
         <div className="max-w-4xl mx-auto py-8 px-4">
             <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
                 <div className="text-center mb-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl">
-                    <h1 className="text-极xl font-bold mb-2">Program Metrics Form</h1>
+                    <h1 className="text-3xl font-bold mb-2">Program Metrics Form</h1>
                     <p className="text-xl opacity-90">Record spiritual decisions, injuries, counseling, and team wins</p>
                 </div>
 
@@ -132,7 +132,7 @@ export default function AdditionalMetricsForm() {
                         <h3 className="text-lg font-medium text-gray-900 mb-4">Participant Information</h3>
 
                         <div>
-                            <label className="block text极m font-medium text-gray-700 mb-1">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
                                 Participant Name
                             </label>
                             <input
@@ -228,7 +228,7 @@ export default function AdditionalMetricsForm() {
                                 name="receiveCounseling"
                                 checked={formData.receiveCounseling}
                                 onChange={handleChange}
-                                className="h-极 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                             />
                             <label htmlFor="receiveCounseling" className="ml-2 block text-sm text-gray-900">
                                 Received counseling
