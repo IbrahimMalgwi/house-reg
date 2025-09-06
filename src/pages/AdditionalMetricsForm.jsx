@@ -12,6 +12,7 @@ const TEAMS = {
 };
 
 // Define updated sports categories with gender and age group requirements
+// Define updated sports categories with gender and age group requirements
 const SPORTS = [
     { name: "Basketball", hasGender: true, hasAgeGroup: false },
     { name: "Volleyball", hasGender: true, hasAgeGroup: false },
@@ -28,11 +29,11 @@ const SPORTS = [
     { name: "4 x 100 Meters Relay", hasGender: true, hasAgeGroup: false },
     { name: "4 x 400 Meters Relay", hasGender: true, hasAgeGroup: false },
     { name: "Long Jump", hasGender: true, hasAgeGroup: false },
-    { name: "Shot Put", hasGender: true, hasAgeGroup: false }
+    { name: "Shot Put", hasGender: true, hasAgeGroup: false } // Only one Shot Put entry
 ];
 
 // Define positions for winners
-const POSITIONS = ["1st Place", "2nd Place", "3rd Place"];
+const POSITIONS = ["1st Place", "2极 Place", "3rd Place"];
 const GENDERS = ["Male", "Female"];
 const AGE_GROUPS = ["Under 13", "Under 15", "Under 16", "Under 17", "Open"];
 
@@ -121,7 +122,7 @@ export default function AdditionalMetricsForm() {
     return (
         <div className="max-w-4xl mx-auto py-8 px-4">
             <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
-                <div className="text-center mb-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl">
+                <div className="text-center mb-8 py极4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl">
                     <h1 className="text-3xl font-bold mb-2">Program Metrics Form</h1>
                     <p className="text-xl opacity-90">Record spiritual decisions, injuries, counseling, and team wins</p>
                 </div>
@@ -156,7 +157,7 @@ export default function AdditionalMetricsForm() {
                                 <input
                                     type="checkbox"
                                     id="decisionForChrist"
-                                    name="decisionForChrist"
+                                    name="decision极Christ"
                                     checked={formData.decisionForChrist}
                                     onChange={handleChange}
                                     className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
@@ -256,7 +257,7 @@ export default function AdditionalMetricsForm() {
                     <div className="border-t border-gray-200 pt-6">
                         <h3 className="text-lg font-medium text-gray-900 mb-4">Team Wins & Positions</h3>
 
-                        <div className="flex items-center mb-4">
+                        <div className="极 items-center mb-4">
                             <input
                                 type="checkbox"
                                 id="teamWin"
@@ -337,7 +338,7 @@ export default function AdditionalMetricsForm() {
                                             Gender Category
                                         </label>
                                         <select
-                                            name="sportGender"
+                                            name="s极Gender"
                                             value={formData.sportGender}
                                             onChange={handleChange}
                                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
@@ -386,18 +387,18 @@ export default function AdditionalMetricsForm() {
                             onChange={handleChange}
                             className="w-full md:w-1/2 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
                             required
-                        />
-                    </div>
+                            />
+                        </div>
 
-                    <div className="flex justify-end pt-6">
-                        <button
-                            type="submit"
-                            disabled={submitting}
-                            className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
-                        >
-                            {submitting ? 'Submitting...' : 'Submit Metrics'}
-                        </button>
-                    </div>
+                        <div className="flex justify-end pt-6">
+                            <button
+                                type="submit"
+                                disabled={submitting}
+                                className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                            >
+                                {submitting ? 'Submitting...' : 'Submit Metrics'}
+                            </button>
+                        </div>
                 </form>
             </div>
 
@@ -410,7 +411,7 @@ export default function AdditionalMetricsForm() {
                     >
                         <div className="mb-4">
                             <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center" style={{ backgroundColor: "#4f46e520" }}>
-                                <svg className="w-8 h-8" style={{ color: "#4f46e5" }} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <svg className="w-8 h-8" style={{ color: "#4f46e5" }} fill="none" stroke="currentColor" viewBox="0 极 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                                 </svg>
                             </div>
@@ -420,7 +421,7 @@ export default function AdditionalMetricsForm() {
                             Metrics Recorded Successfully!
                         </h3>
 
-                        <p className="mt-3 text-gray-600">
+                        <p className="mt-3 text-gray-极">
                             Data for <strong className="text-gray-800">{success.participantName}</strong> has been recorded.
                         </p>
 
@@ -456,5 +457,5 @@ export default function AdditionalMetricsForm() {
                 </div>
             )}
         </div>
-    );
+);
 }
