@@ -49,6 +49,10 @@ const SPORTS = [
     { name: "50 Meters", hasGender: true, hasAgeGroup: false },
     { name: "70 Meters", hasGender: true, hasAgeGroup: false },
     { name: "100 Meters", hasGender: true, hasAgeGroup: false },
+    { name: "100 Meters Under 15 Boys", hasGender: false, hasAgeGroup: false },
+    { name: "100 Meters Under 15 Girls", hasGender: false, hasAgeGroup: false },
+    { name: "100 Meters Under 17 Boys", hasGender: false, hasAgeGroup: false },
+    { name: "100 Meters Under 17 Girls", hasGender: false, hasAgeGroup: false },
     { name: "800 Meters", hasGender: true, hasAgeGroup: false },
     { name: "4 x 100 Meters Relay", hasGender: true, hasAgeGroup: false },
     { name: "4 x 400 Meters Relay", hasGender: true, hasAgeGroup: false },
@@ -649,6 +653,55 @@ export default function ProgramMetricsDashboard() {
                                 </div>
                             </div>
                         ))}
+                </div>
+            </div>
+
+            {/* Winning Per Sporting Category */}
+            <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
+                <div className="flex items-center mb-6">
+                    <div className="w-10 h-10 rounded-lg bg-yellow-100 flex items-center justify-center mr-3 text-yellow-600">
+                        🏅
+                    </div>
+                    <h2 className="text-2xl font-semibold">Winning Per Sporting Category</h2>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {Object.entries(metrics.winsBySport)
+                        .filter(([sport, data]) => data.total > 0)
+                        .map(([sport, sportData]) => {
+                            const winningTeams = Object.entries(sportData.wins)
+                                .filter(([_, wins]) => wins > 0)
+                                .sort(([,a], [,b]) => b - a);
+
+                            return (
+                                <div key={sport} className="bg-gray-50 p-4 rounded-lg border-l-4 border-yellow-400">
+                                    <h3 className="text-lg font-semibold mb-3 text-center text-yellow-600">
+                                        {sport}
+                                    </h3>
+                                    <div className="space-y-2">
+                                        {winningTeams.map(([team, wins], index) => {
+                                            const teamKey = Object.keys(TEAMS).find(key => TEAMS[key].name === team);
+                                            const teamColor = TEAMS[teamKey]?.color || "#6b7280";
+                                            const teamShort = TEAMS[teamKey]?.short || team;
+
+                                            return (
+                                                <div key={team} className="flex justify-between items-center">
+                                                    <span className="text-sm font-medium text-gray-700">
+                                                        {index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : ""} {teamShort}
+                                                    </span>
+                                                    <span className="font-bold" style={{ color: teamColor }}>{wins}</span>
+                                                </div>
+                                            );
+                                        })}
+                                        <div className="border-t pt-2 mt-2">
+                                            <div className="flex justify-between items-center font-semibold">
+                                                <span>Total Wins</span>
+                                                <span className="text-yellow-600">{sportData.total}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
                 </div>
             </div>
 
