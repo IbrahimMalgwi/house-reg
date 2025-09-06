@@ -20,7 +20,11 @@ const SPORTS = [
     { name: "50 Meters", hasGender: true, hasAgeGroup: false },
     { name: "70 Meters", hasGender: true, hasAgeGroup: false },
     { name: "100 Meters", hasGender: true, hasAgeGroup: false },
-    { name: "800 Meters", hasGender: true, hasAgeGroup: false }, // Added 800 Meters
+    { name: "100 Meters Under 15 Boys", hasGender: false, hasAgeGroup: false },
+    { name: "100 Meters Under 15 Girls", hasGender: false, hasAgeGroup: false },
+    { name: "100 Meters Under 17 Boys", hasGender: false, hasAgeGroup: false },
+    { name: "100 Meters Under 17 Girls", hasGender: false, hasAgeGroup: false },
+    { name: "800 Meters", hasGender: true, hasAgeGroup: false },
     { name: "4 x 100 Meters Relay", hasGender: true, hasAgeGroup: false },
     { name: "4 x 400 Meters Relay", hasGender: true, hasAgeGroup: false },
     { name: "Long Jump", hasGender: true, hasAgeGroup: false },
@@ -30,7 +34,7 @@ const SPORTS = [
 // Define positions for winners
 const POSITIONS = ["1st Place", "2nd Place", "3rd Place"];
 const GENDERS = ["Male", "Female"];
-const AGE_GROUPS = ["Under 13", "Under 16", "Open"];
+const AGE_GROUPS = ["Under 13", "Under 15", "Under 16", "Under 17", "Open"];
 
 export default function AdditionalMetricsForm() {
     const [formData, setFormData] = useState({
