@@ -14,9 +14,10 @@ import {
     LinearScale,
     BarElement,
     Title,
-    DoughnutController
+    DoughnutController,
+    BarController
 } from 'chart.js';
-import { Doughnut,  Pie } from 'react-chartjs-2';
+import { Doughnut, Pie, Bar } from 'react-chartjs-2';
 
 // Register Chart.js components
 ChartJS.register(
@@ -27,7 +28,8 @@ ChartJS.register(
     LinearScale,
     BarElement,
     Title,
-    DoughnutController
+    DoughnutController,
+    BarController
 );
 
 // Define teams with updated names and colors
@@ -38,22 +40,23 @@ const TEAMS = {
     PURPLE: { name: "Jesus our coming King", color: "#800080", short: "Coming King" }
 };
 
-// Define updated sports categories
+// Define updated sports categories with gender information
 const SPORTS = [
-    "Football",
-    "Basketball",
-    "Volleyball",
-    "Long Jump",
-    "Shot Put",
-    "100m",
-    "200m",
-    "400m",
-    "4x100m Relay",
-    "4x400m Relay",
-    "Table Tennis",
-    "Scrabble",
-    "Chess"
+    { name: "Basketball", hasGender: true, hasAgeGroup: false },
+    { name: "Volleyball", hasGender: true, hasAgeGroup: false },
+    { name: "Football", hasGender: true, hasAgeGroup: true },
+    { name: "Relley", hasGender: false, hasAgeGroup: false },
+    { name: "50 Meters", hasGender: true, hasAgeGroup: false },
+    { name: "70 Meters", hasGender: true, hasAgeGroup: false },
+    { name: "100 Meters", hasGender: true, hasAgeGroup: false },
+    { name: "4 x 100 Meters Relay", hasGender: true, hasAgeGroup: false },
+    { name: "4 x 400 Meters Relay", hasGender: true, hasAgeGroup: false },
+    { name: "Long Jump", hasGender: true, hasAgeGroup: false },
+    { name: "Shot Put", hasGender: true, hasAgeGroup: false }
 ];
+
+// Define gender options
+// const GENDERS = ["Male", "Female"];
 
 export default function ProgramMetricsDashboard() {
     const [metricsData, setMetricsData] = useState([]);
@@ -107,7 +110,6 @@ export default function ProgramMetricsDashboard() {
     const filteredData = filterDataByTime(metricsData);
 
     // Calculate all metrics
-    // Calculate all metrics
     const calculateMetrics = () => {
         // Spiritual metrics
         const decisionsForChrist = filteredData.filter(item => item.decisionForChrist).length;
@@ -118,24 +120,27 @@ export default function ProgramMetricsDashboard() {
         // Team wins analysis - filter items where teamWin is true
         const teamWins = filteredData.filter(item => item.teamWin === true);
 
-        // Debug: Log team wins to see what data we're getting
-        console.log("Team wins data:", teamWins);
-
         // Wins by team
         const winsByTeam = {};
         Object.keys(TEAMS).forEach(teamKey => {
             winsByTeam[TEAMS[teamKey].name] = 0;
         });
 
+        // Wins by gender
+        const winsByGender = {
+            "Male": 0,
+            "Female": 0
+        };
+
         // Wins by sport with positions
         const winsBySport = {};
         SPORTS.forEach(sport => {
-            winsBySport[sport] = {
+            winsBySport[sport.name] = {
                 total: 0,
                 wins: {}
             };
             Object.keys(TEAMS).forEach(teamKey => {
-                winsBySport[sport].wins[TEAMS[teamKey].name] = 0;
+                winsBySport[sport.name].wins[TEAMS[teamKey].name] = 0;
             });
         });
 
@@ -146,10 +151,31 @@ export default function ProgramMetricsDashboard() {
             "3rd Place": 0
         };
 
+        // Wins by team and gender
+        const winsByTeamAndGender = {};
+        Object.keys(TEAMS).forEach(teamKey => {
+            winsByTeamAndGender[TEAMS[teamKey].name] = {
+                "Male": 0,
+                "Female": 0,
+                "Total": 0
+            };
+        });
+
         teamWins.forEach(win => {
             // Count wins by team - handle exact matches from the form
             if (win.winningTeam && winsByTeam.hasOwnProperty(win.winningTeam)) {
                 winsByTeam[win.winningTeam]++;
+            }
+
+            // Count wins by gender
+            if (win.sportGender && winsByGender.hasOwnProperty(win.sportGender)) {
+                winsByGender[win.sportGender]++;
+            }
+
+            // Count wins by team and gender
+            if (win.winningTeam && win.sportGender && winsByTeamAndGender[win.winningTeam]) {
+                winsByTeamAndGender[win.winningTeam][win.sportGender]++;
+                winsByTeamAndGender[win.winningTeam].Total++;
             }
 
             // Count wins by sport
@@ -203,13 +229,6 @@ export default function ProgramMetricsDashboard() {
             }
         });
 
-        // Debug: Log the calculated metrics
-        console.log("Calculated metrics:", {
-            winsByTeam,
-            overallRanking,
-            teamWinsCount: teamWins.length
-        });
-
         return {
             decisionsForChrist,
             holyGhostBaptisms,
@@ -217,6 +236,8 @@ export default function ProgramMetricsDashboard() {
             counselingSessions,
             teamWins: teamWins.length,
             winsByTeam,
+            winsByGender,
+            winsByTeamAndGender,
             winsBySport,
             winsByPosition,
             teamPositions,
@@ -224,6 +245,7 @@ export default function ProgramMetricsDashboard() {
             overallRanking
         };
     };
+
     const metrics = calculateMetrics();
 
     // Prepare data for CSV export
@@ -233,11 +255,15 @@ export default function ProgramMetricsDashboard() {
             "Decision for Christ": item.decisionForChrist ? "Yes" : "No",
             "Holy Ghost Baptism": item.holyGhostBaptism ? "Yes" : "No",
             "Injured": item.injured ? "Yes" : "No",
+            "Injury Details": item.injuryDetails || "",
             "Received Counseling": item.receiveCounseling ? "Yes" : "No",
+            "Counseling Details": item.counselingDetails || "",
             "Team Win": item.teamWin ? "Yes" : "No",
             "Winning Team": item.winningTeam || "",
             "Position": item.position || "",
             "Sport Category": item.sportCategory || "",
+            "Sport Gender": item.sportGender || "",
+            "Age Group": item.ageGroup || "",
             "Event Date": item.eventDate || ""
         })),
         headers: [
@@ -245,28 +271,31 @@ export default function ProgramMetricsDashboard() {
             { label: "Decision for Christ", key: "Decision for Christ" },
             { label: "Holy Ghost Baptism", key: "Holy Ghost Baptism" },
             { label: "Injured", key: "Injured" },
+            { label: "Injury Details", key: "Injury Details" },
             { label: "Received Counseling", key: "Received Counseling" },
+            { label: "Counseling Details", key: "Counseling Details" },
             { label: "Team Win", key: "Team Win" },
             { label: "Winning Team", key: "Winning Team" },
             { label: "Position", key: "Position" },
             { label: "Sport Category", key: "Sport Category" },
+            { label: "Sport Gender", key: "Sport Gender" },
+            { label: "Age Group", key: "Age Group" },
             { label: "Event Date", key: "Event Date" }
         ]
     };
 
     // Chart data for spiritual metrics
     const spiritualChartData = {
-        labels: ["Decisions for Christ", "Holy Ghost Baptisms", "Counseling Sessions"],
+        labels: ["Decisions for Christ", "Holy Ghost Baptisms", "Injuries", "Counseling Sessions"],
         datasets: [
             {
-                data: [metrics.decisionsForChrist, metrics.holyGhostBaptisms, metrics.counselingSessions],
-                backgroundColor: ["#FF0000", "#FFD700", "#ADD8E6"], // Red, Yellow, Light Blue
+                data: [metrics.decisionsForChrist, metrics.holyGhostBaptisms, metrics.injuries, metrics.counselingSessions],
+                backgroundColor: ["#4CAF50", "#FFD700", "#FF0000", "#2196F3"],
                 borderWidth: 2,
                 borderColor: '#ffffff'
             }
         ]
     };
-
 
     // Chart data for team wins
     const teamWinsChartData = {
@@ -284,15 +313,51 @@ export default function ProgramMetricsDashboard() {
         ]
     };
 
+    // Chart data for wins by gender
+    const genderWinsChartData = {
+        labels: Object.keys(metrics.winsByGender),
+        datasets: [
+            {
+                data: Object.values(metrics.winsByGender),
+                backgroundColor: ["#3498db", "#e74c3c"],
+                borderWidth: 2,
+                borderColor: '#ffffff'
+            }
+        ]
+    };
+
     // Chart data for positions
     const positionsChartData = {
         labels: Object.keys(metrics.winsByPosition),
         datasets: [
             {
                 data: Object.values(metrics.winsByPosition),
-                backgroundColor: ["#FFD700", "#C0C0C0", "#CD7F32"], // Gold, Silver, Bronze
+                backgroundColor: ["#FFD700", "#C0C0C0", "#CD7F32"],
                 borderWidth: 2,
                 borderColor: '#ffffff'
+            }
+        ]
+    };
+
+    // Chart data for wins by team and gender (stacked bar chart)
+    const teamGenderWinsChartData = {
+        labels: Object.keys(TEAMS).map(key => TEAMS[key].short),
+        datasets: [
+            {
+                label: 'Male',
+                data: Object.keys(TEAMS).map(key => {
+                    const teamName = TEAMS[key].name;
+                    return metrics.winsByTeamAndGender[teamName]?.Male || 0;
+                }),
+                backgroundColor: '#3498db',
+            },
+            {
+                label: 'Female',
+                data: Object.keys(TEAMS).map(key => {
+                    const teamName = TEAMS[key].name;
+                    return metrics.winsByTeamAndGender[teamName]?.Female || 0;
+                }),
+                backgroundColor: '#e74c3c',
             }
         ]
     };
@@ -344,35 +409,35 @@ export default function ProgramMetricsDashboard() {
             {/* Statistics Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <div className="bg-white rounded-2xl shadow-lg p-6 text-center">
-                    <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center mx-auto mb-3 text-indigo-600">
+                    <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-3 text-green-600">
                         ✝️
                     </div>
                     <h3 className="text-lg font-medium text-gray-900 mb-2">Decisions for Christ</h3>
-                    <p className="text-3xl font-bold text-indigo-600">{metrics.decisionsForChrist}</p>
+                    <p className="text-3xl font-bold text-green-600">{metrics.decisionsForChrist}</p>
                 </div>
 
                 <div className="bg-white rounded-2xl shadow-lg p-6 text-center">
-                    <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-3 text-purple-600">
+                    <div className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center mx-auto mb-3 text-yellow-600">
                         🔥
                     </div>
                     <h3 className="text-lg font-medium text-gray-900 mb-2">Holy Ghost Baptisms</h3>
-                    <p className="text-3xl font-bold text-purple-600">{metrics.holyGhostBaptisms}</p>
-                </div>
-
-                <div className="bg-white rounded-2xl shadow-lg p-6 text-center">
-                    <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-3 text-green-600">
-                        💬
-                    </div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Counseling Sessions</h3>
-                    <p className="text-3xl font-bold text-green-600">{metrics.counselingSessions}</p>
+                    <p className="text-3xl font-bold text-yellow-600">{metrics.holyGhostBaptisms}</p>
                 </div>
 
                 <div className="bg-white rounded-2xl shadow-lg p-6 text-center">
                     <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-3 text-red-600">
-                        🏆
+                        🏥
                     </div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Total Team Wins</h3>
-                    <p className="text-3xl font-bold text-red-600">{metrics.teamWins}</p>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Injuries</h3>
+                    <p className="text-3xl font-bold text-red-600">{metrics.injuries}</p>
+                </div>
+
+                <div className="bg-white rounded-2xl shadow-lg p-6 text-center">
+                    <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-3 text-blue-600">
+                        💬
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Counseling Sessions</h3>
+                    <p className="text-3xl font-bold text-blue-600">{metrics.counselingSessions}</p>
                 </div>
             </div>
 
@@ -381,7 +446,7 @@ export default function ProgramMetricsDashboard() {
                 {/* Spiritual Decisions Chart */}
                 <div className="bg-white rounded-2xl shadow-lg p-6">
                     <div className="flex items-center mb-6">
-                        <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center mr-3 text-indigo-600">
+                        <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center mr-3 text-green-600">
                             ✝️
                         </div>
                         <h2 className="text-2xl font-semibold">Spiritual Metrics</h2>
@@ -413,20 +478,72 @@ export default function ProgramMetricsDashboard() {
                 </div>
             </div>
 
-            {/* Positions Chart */}
+            {/* Additional Charts Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                {/* Wins by Gender Chart */}
+                <div className="bg-white rounded-2xl shadow-lg p-6">
+                    <div className="flex items-center mb-6">
+                        <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center mr-3 text-blue-600">
+                            👥
+                        </div>
+                        <h2 className="text-2xl font-semibold">Wins by Gender</h2>
+                    </div>
+                    <div className="h-80">
+                        <Doughnut data={genderWinsChartData} options={{
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { position: 'bottom' } }
+                        }} />
+                    </div>
+                </div>
+
+                {/* Positions Chart */}
+                <div className="bg-white rounded-2xl shadow-lg p-6">
+                    <div className="flex items-center mb-6">
+                        <div className="w-10 h-10 rounded-lg bg-yellow-100 flex items-center justify-center mr-3 text-yellow-600">
+                            🏅
+                        </div>
+                        <h2 className="text-2xl font-semibold">Wins by Position</h2>
+                    </div>
+                    <div className="h-80">
+                        <Doughnut data={positionsChartData} options={{
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { position: 'bottom' } }
+                        }} />
+                    </div>
+                </div>
+            </div>
+
+            {/* Team Wins by Gender (Stacked Bar Chart) */}
             <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
                 <div className="flex items-center mb-6">
-                    <div className="w-10 h-10 rounded-lg bg-yellow-100 flex items-center justify-center mr-3 text-yellow-600">
-                        🏅
+                    <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center mr-3 text-indigo-600">
+                        📊
                     </div>
-                    <h2 className="text-2xl font-semibold">Wins by Position</h2>
+                    <h2 className="text-2xl font-semibold">Team Wins by Gender</h2>
                 </div>
-                <div className="h-80">
-                    <Doughnut data={positionsChartData} options={{
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { position: 'bottom' } }
-                    }} />
+                <div className="h-96">
+                    <Bar
+                        data={teamGenderWinsChartData}
+                        options={{
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { position: 'top' },
+                                title: { display: true, text: 'Wins by Team and Gender' }
+                            },
+                            scales: {
+                                x: {
+                                    stacked: true,
+                                },
+                                y: {
+                                    stacked: true,
+                                    beginAtZero: true
+                                }
+                            }
+                        }}
+                    />
                 </div>
             </div>
 
@@ -470,44 +587,44 @@ export default function ProgramMetricsDashboard() {
                 </div>
             </div>
 
-            {/* Sport Rankings */}
+            {/* Team Wins by Gender Breakdown */}
             <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
                 <div className="flex items-center mb-6">
-                    <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center mr-3 text-red-600">
-                        🏅
+                    <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center mr-3 text-purple-600">
+                        👥
                     </div>
-                    <h2 className="text-2xl font-semibold">Sport Rankings</h2>
+                    <h2 className="text-2xl font-semibold">Team Wins by Gender</h2>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {Object.entries(metrics.sportRankings).map(([sport, rankings]) => (
-                        <div key={sport} className="bg-gray-50 p-4 rounded-lg">
-                            <h3 className="text-lg font-semibold mb-4 text-center">{sport}</h3>
-                            <div className="space-y-3">
-                                {['1', '2', '3'].map((position) => {
-                                    const ranking = rankings[position];
-                                    if (!ranking) return null;
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {Object.entries(metrics.winsByTeamAndGender).map(([team, genderData]) => {
+                        const teamKey = Object.keys(TEAMS).find(key => TEAMS[key].name === team);
+                        const teamColor = TEAMS[teamKey]?.color || "#6b7280";
+                        const totalWins = genderData.Total;
 
-                                    const [teamName, wins] = ranking;
-                                    const teamKey = Object.keys(TEAMS).find(key => TEAMS[key].name === teamName);
-                                    const team = TEAMS[teamKey];
-
-                                    return (
-                                        <div
-                                            key={position}
-                                            className="flex justify-between items-center p-3 rounded-lg text-white"
-                                            style={{ backgroundColor: team.color }}
-                                        >
-                                            <span className="font-bold">{position}st Place</span>
-                                            <div className="text-right">
-                                                <div className="font-semibold">{team.short}</div>
-                                                <div className="text-sm opacity-90">{wins} Win{wins !== 1 ? 's' : ''}</div>
-                                            </div>
+                        return (
+                            <div key={team} className="bg-gray-50 p-4 rounded-lg border-l-4" style={{ borderLeftColor: teamColor }}>
+                                <h3 className="text-lg font-semibold mb-3 text-center" style={{ color: teamColor }}>
+                                    {TEAMS[teamKey]?.short || team}
+                                </h3>
+                                <div className="space-y-2">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm font-medium text-gray-700">Male Wins</span>
+                                        <span className="font-bold text-blue-600">{genderData.Male}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm font-medium text-gray-700">Female Wins</span>
+                                        <span className="font-bold text-red-600">{genderData.Female}</span>
+                                    </div>
+                                    <div className="border-t pt-2 mt-2">
+                                        <div className="flex justify-between items-center font-semibold">
+                                            <span>Total Wins</span>
+                                            <span style={{ color: teamColor }}>{totalWins}</span>
                                         </div>
-                                    );
-                                })}
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
 
@@ -558,52 +675,6 @@ export default function ProgramMetricsDashboard() {
                     </div>
                 </div>
             )}
-
-            {/* Team Wins Breakdown */}
-            <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
-                <div className="flex items-center mb-6">
-                    <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center mr-3 text-green-600">
-                        📊
-                    </div>
-                    <h2 className="text-2xl font-semibold">Team Performance Breakdown</h2>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {Object.entries(metrics.winsByTeam).map(([team, wins]) => {
-                        const teamKey = Object.keys(TEAMS).find(key => TEAMS[key].name === team);
-                        const color = TEAMS[teamKey]?.color || "#6b7280";
-                        const percentage = metrics.teamWins > 0 ? (wins / metrics.teamWins) * 100 : 0;
-
-                        return (
-                            <div
-                                key={team}
-                                className="bg-gray-50 p-4 rounded-lg border-l-4"
-                                style={{ borderLeftColor: color }}
-                            >
-                                <div className="flex justify-between items-center mb-2">
-                                    <span className="font-medium text-gray-900 text-sm">
-                                        {TEAMS[teamKey]?.short || team}
-                                    </span>
-                                    <span className="text-lg font-bold" style={{ color }}>
-                                        {wins}
-                                    </span>
-                                </div>
-                                <div className="w-full bg-gray-200 rounded-full h-2">
-                                    <div
-                                        className="h-2 rounded-full"
-                                        style={{
-                                            width: `${percentage}%`,
-                                            backgroundColor: color
-                                        }}
-                                    ></div>
-                                </div>
-                                <p className="text-xs text-gray-500 mt-1">
-                                    {percentage.toFixed(1)}% of total wins
-                                </p>
-                            </div>
-                        );
-                    })}
-                </div>
-            </div>
         </div>
     );
 }

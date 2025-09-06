@@ -11,25 +11,25 @@ const TEAMS = {
     PURPLE: { name: "Jesus our coming King", color: "#800080" }
 };
 
-// Define updated sports categories
+// Define updated sports categories with gender and age group requirements
 const SPORTS = [
-    "Football",
-    "Basketball",
-    "Volleyball",
-    "Long Jump",
-    "Shot Put",
-    "100m",
-    "200m",
-    "400m",
-    "4x100m Relay",
-    "4x400m Relay",
-    "Table Tennis",
-    "Scrabble",
-    "Chess"
+    { name: "Basketball", hasGender: true, hasAgeGroup: false },
+    { name: "Volleyball", hasGender: true, hasAgeGroup: false },
+    { name: "Football", hasGender: true, hasAgeGroup: true },
+    { name: "Relley", hasGender: false, hasAgeGroup: false },
+    { name: "50 Meters", hasGender: true, hasAgeGroup: false },
+    { name: "70 Meters", hasGender: true, hasAgeGroup: false },
+    { name: "100 Meters", hasGender: true, hasAgeGroup: false },
+    { name: "4 x 100 Meters Relay", hasGender: true, hasAgeGroup: false },
+    { name: "4 x 400 Meters Relay", hasGender: true, hasAgeGroup: false },
+    { name: "Long Jump", hasGender: true, hasAgeGroup: false },
+    { name: "Shot Put", hasGender: true, hasAgeGroup: false }
 ];
 
 // Define positions for winners
 const POSITIONS = ["1st Place", "2nd Place", "3rd Place"];
+const GENDERS = ["Male", "Female"];
+const AGE_GROUPS = ["Under 13", "Under 16", "Open"];
 
 export default function AdditionalMetricsForm() {
     const [formData, setFormData] = useState({
@@ -44,6 +44,8 @@ export default function AdditionalMetricsForm() {
         winningTeam: "",
         position: "",
         sportCategory: "",
+        sportGender: "",
+        ageGroup: "",
         eventDate: new Date().toISOString().split('T')[0]
     });
 
@@ -76,7 +78,9 @@ export default function AdditionalMetricsForm() {
                 teamWin: formData.teamWin,
                 winningTeam: formData.winningTeam,
                 position: formData.position,
-                sportCategory: formData.sportCategory
+                sportCategory: formData.sportCategory,
+                sportGender: formData.sportGender,
+                ageGroup: formData.ageGroup
             });
 
             // Reset form
@@ -92,6 +96,8 @@ export default function AdditionalMetricsForm() {
                 winningTeam: "",
                 position: "",
                 sportCategory: "",
+                sportGender: "",
+                ageGroup: "",
                 eventDate: new Date().toISOString().split('T')[0]
             });
         } catch (error) {
@@ -101,6 +107,11 @@ export default function AdditionalMetricsForm() {
             setSubmitting(false);
         }
     };
+
+    // Get selected sport to determine if we need gender/age group fields
+    const selectedSport = SPORTS.find(sport => sport.name === formData.sportCategory);
+    const showGenderField = selectedSport && selectedSport.hasGender;
+    const showAgeGroupField = selectedSport && selectedSport.hasAgeGroup;
 
     return (
         <div className="max-w-4xl mx-auto py-8 px-4">
@@ -309,10 +320,52 @@ export default function AdditionalMetricsForm() {
                                     >
                                         <option value="">Select Sport</option>
                                         {SPORTS.map(sport => (
-                                            <option key={sport} value={sport}>{sport}</option>
+                                            <option key={sport.name} value={sport.name}>{sport.name}</option>
                                         ))}
                                     </select>
                                 </div>
+
+                                {/* Gender Selection - Only show for sports that require it */}
+                                {showGenderField && (
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Gender Category
+                                        </label>
+                                        <select
+                                            name="sportGender"
+                                            value={formData.sportGender}
+                                            onChange={handleChange}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                                            required={formData.teamWin}
+                                        >
+                                            <option value="">Select Gender</option>
+                                            {GENDERS.map(gender => (
+                                                <option key={gender} value={gender}>{gender}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                )}
+
+                                {/* Age Group Selection - Only show for sports that require it */}
+                                {showAgeGroupField && (
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Age Group
+                                        </label>
+                                        <select
+                                            name="ageGroup"
+                                            value={formData.ageGroup}
+                                            onChange={handleChange}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                                            required={formData.teamWin}
+                                        >
+                                            <option value="">Select Age Group</option>
+                                            {AGE_GROUPS.map(group => (
+                                                <option key={group} value={group}>{group}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>
@@ -382,6 +435,8 @@ export default function AdditionalMetricsForm() {
                             <div className="my-2 p-2 bg-purple-100 rounded-lg">
                                 <span className="text-purple-700 font-medium">
                                     {success.winningTeam} - {success.position} in {success.sportCategory}
+                                    {success.sportGender && ` (${success.sportGender})`}
+                                    {success.ageGroup && ` - ${success.ageGroup}`}
                                 </span>
                             </div>
                         )}
