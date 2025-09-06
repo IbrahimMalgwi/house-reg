@@ -20,6 +20,7 @@ const SPORTS = [
     { name: "50 Meters", hasGender: true, hasAgeGroup: false },
     { name: "70 Meters", hasGender: true, hasAgeGroup: false },
     { name: "100 Meters", hasGender: true, hasAgeGroup: false },
+    { name: "800 Meters", hasGender: true, hasAgeGroup: false }, // Added 800 Meters
     { name: "4 x 100 Meters Relay", hasGender: true, hasAgeGroup: false },
     { name: "4 x 400 Meters Relay", hasGender: true, hasAgeGroup: false },
     { name: "Long Jump", hasGender: true, hasAgeGroup: false },

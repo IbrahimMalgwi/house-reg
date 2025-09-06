@@ -49,14 +49,12 @@ const SPORTS = [
     { name: "50 Meters", hasGender: true, hasAgeGroup: false },
     { name: "70 Meters", hasGender: true, hasAgeGroup: false },
     { name: "100 Meters", hasGender: true, hasAgeGroup: false },
+    { name: "800 Meters", hasGender: true, hasAgeGroup: false }, // Added 800 Meters
     { name: "4 x 100 Meters Relay", hasGender: true, hasAgeGroup: false },
     { name: "4 x 400 Meters Relay", hasGender: true, hasAgeGroup: false },
     { name: "Long Jump", hasGender: true, hasAgeGroup: false },
     { name: "Shot Put", hasGender: true, hasAgeGroup: false }
 ];
-
-// Define gender options
-// const GENDERS = ["Male", "Female"];
 
 export default function ProgramMetricsDashboard() {
     const [metricsData, setMetricsData] = useState([]);
@@ -289,7 +287,7 @@ export default function ProgramMetricsDashboard() {
         labels: ["Decisions for Christ", "Holy Ghost Baptisms", "Injuries", "Counseling Sessions"],
         datasets: [
             {
-                data: [metrics.decisionsForChrist, metrics.holyGhostBaptisms, metrics.injuries, metrics.counselingSessions],
+                data: [metrics.decisionsForChrist, metrics.holyGhostBaptisms, metrics.injures, metrics.counselingSessions],
                 backgroundColor: ["#4CAF50", "#FFD700", "#FF0000", "#2196F3"],
                 borderWidth: 2,
                 borderColor: '#ffffff'
