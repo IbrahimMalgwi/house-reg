@@ -146,6 +146,20 @@ export default function ProgramMetricsDashboard() {
             });
         });
 
+        // NEW: Wins by sport, gender, and team
+        const winsBySportGenderTeam = {};
+        SPORTS.forEach(sport => {
+            winsBySportGenderTeam[sport.name] = {
+                "Male": {},
+                "Female": {},
+                "Total": 0
+            };
+            Object.keys(TEAMS).forEach(teamKey => {
+                winsBySportGenderTeam[sport.name]["Male"][TEAMS[teamKey].name] = 0;
+                winsBySportGenderTeam[sport.name]["Female"][TEAMS[teamKey].name] = 0;
+            });
+        });
+
         // Wins by sport and gender
         const winsBySportAndGender = {};
         SPORTS.forEach(sport => {
@@ -188,6 +202,14 @@ export default function ProgramMetricsDashboard() {
             if (win.sportCategory && win.sportGender && winsBySportAndGender[win.sportCategory]) {
                 winsBySportAndGender[win.sportCategory][win.sportGender]++;
                 winsBySportAndGender[win.sportCategory].Total++;
+            }
+
+            // NEW: Count wins by sport, gender, and team
+            if (win.sportCategory && win.sportGender && win.winningTeam && winsBySportGenderTeam[win.sportCategory]) {
+                if (winsBySportGenderTeam[win.sportCategory][win.sportGender].hasOwnProperty(win.winningTeam)) {
+                    winsBySportGenderTeam[win.sportCategory][win.sportGender][win.winningTeam]++;
+                    winsBySportGenderTeam[win.sportCategory].Total++;
+                }
             }
 
             // Count wins by team and gender
@@ -258,6 +280,7 @@ export default function ProgramMetricsDashboard() {
             winsByTeamAndGender,
             winsBySport,
             winsBySportAndGender,
+            winsBySportGenderTeam, // NEW
             winsByPosition,
             teamPositions,
             sportRankings,
@@ -656,7 +679,7 @@ export default function ProgramMetricsDashboard() {
                 </div>
             </div>
 
-            {/* Winning Per Sporting Category */}
+            {/* NEW: Winning Per Sporting Category - Separated by Gender */}
             <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
                 <div className="flex items-center mb-6">
                     <div className="w-10 h-10 rounded-lg bg-yellow-100 flex items-center justify-center mr-3 text-yellow-600">
@@ -664,44 +687,107 @@ export default function ProgramMetricsDashboard() {
                     </div>
                     <h2 className="text-2xl font-semibold">Winning Per Sporting Category</h2>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {Object.entries(metrics.winsBySport)
-                        .filter(([sport, data]) => data.total > 0)
-                        .map(([sport, sportData]) => {
-                            const winningTeams = Object.entries(sportData.wins)
-                                .filter(([_, wins]) => wins > 0)
-                                .sort(([,a], [,b]) => b - a);
 
-                            return (
-                                <div key={sport} className="bg-gray-50 p-4 rounded-lg border-l-4 border-yellow-400">
-                                    <h3 className="text-lg font-semibold mb-3 text-center text-yellow-600">
-                                        {sport}
-                                    </h3>
-                                    <div className="space-y-2">
-                                        {winningTeams.map(([team, wins], index) => {
-                                            const teamKey = Object.keys(TEAMS).find(key => TEAMS[key].name === team);
-                                            const teamColor = TEAMS[teamKey]?.color || "#6b7280";
-                                            const teamShort = TEAMS[teamKey]?.short || team;
+                {/* Male Sports */}
+                <div className="mb-8">
+                    <h3 className="text-xl font-semibold mb-4 text-blue-600 flex items-center">
+                        <span className="mr-2">👨 Male Sports</span>
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {Object.entries(metrics.winsBySportGenderTeam)
+                            .filter(([sport, data]) => {
+                                const maleWins = Object.values(data.Male).reduce((sum, wins) => sum + wins, 0);
+                                return maleWins > 0;
+                            })
+                            .map(([sport, sportData]) => {
+                                const maleWins = Object.entries(sportData.Male)
+                                    .filter(([_, wins]) => wins > 0)
+                                    .sort(([,a], [,b]) => b - a);
 
-                                            return (
-                                                <div key={team} className="flex justify-between items-center">
-                                                    <span className="text-sm font-medium text-gray-700">
-                                                        {index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : ""} {teamShort}
+                                return (
+                                    <div key={`male-${sport}`} className="bg-gray-50 p-4 rounded-lg border-l-4 border-blue-400">
+                                        <h3 className="text-lg font-semibold mb-3 text-center text-blue-600">
+                                            {sport} (Male)
+                                        </h3>
+                                        <div className="space-y-2">
+                                            {maleWins.map(([team, wins], index) => {
+                                                const teamKey = Object.keys(TEAMS).find(key => TEAMS[key].name === team);
+                                                const teamColor = TEAMS[teamKey]?.color || "#6b7280";
+                                                const teamShort = TEAMS[teamKey]?.short || team;
+
+                                                return (
+                                                    <div key={team} className="flex justify-between items-center">
+                                                        <span className="text-sm font-medium text-gray-700">
+                                                            {index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : ""} {teamShort}
+                                                        </span>
+                                                        <span className="font-bold" style={{ color: teamColor }}>{wins}</span>
+                                                    </div>
+                                                );
+                                            })}
+                                            <div className="border-t pt-2 mt-2">
+                                                <div className="flex justify-between items-center font-semibold">
+                                                    <span>Total Male Wins</span>
+                                                    <span className="text-blue-600">
+                                                        {Object.values(sportData.Male).reduce((sum, wins) => sum + wins, 0)}
                                                     </span>
-                                                    <span className="font-bold" style={{ color: teamColor }}>{wins}</span>
                                                 </div>
-                                            );
-                                        })}
-                                        <div className="border-t pt-2 mt-2">
-                                            <div className="flex justify-between items-center font-semibold">
-                                                <span>Total Wins</span>
-                                                <span className="text-yellow-600">{sportData.total}</span>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            );
-                        })}
+                                );
+                            })}
+                    </div>
+                </div>
+
+                {/* Female Sports */}
+                <div>
+                    <h3 className="text-xl font-semibold mb-4 text-red-600 flex items-center">
+                        <span className="mr-2">👩 Female Sports</span>
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {Object.entries(metrics.winsBySportGenderTeam)
+                            .filter(([sport, data]) => {
+                                const femaleWins = Object.values(data.Female).reduce((sum, wins) => sum + wins, 0);
+                                return femaleWins > 0;
+                            })
+                            .map(([sport, sportData]) => {
+                                const femaleWins = Object.entries(sportData.Female)
+                                    .filter(([_, wins]) => wins > 0)
+                                    .sort(([,a], [,b]) => b - a);
+
+                                return (
+                                    <div key={`female-${sport}`} className="bg-gray-50 p-4 rounded-lg border-l-4 border-red-400">
+                                        <h3 className="text-lg font-semibold mb-3 text-center text-red-600">
+                                            {sport} (Female)
+                                        </h3>
+                                        <div className="space-y-2">
+                                            {femaleWins.map(([team, wins], index) => {
+                                                const teamKey = Object.keys(TEAMS).find(key => TEAMS[key].name === team);
+                                                const teamColor = TEAMS[teamKey]?.color || "#6b7280";
+                                                const teamShort = TEAMS[teamKey]?.short || team;
+
+                                                return (
+                                                    <div key={team} className="flex justify-between items-center">
+                                                        <span className="text-sm font-medium text-gray-700">
+                                                            {index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : ""} {teamShort}
+                                                        </span>
+                                                        <span className="font-bold" style={{ color: teamColor }}>{wins}</span>
+                                                    </div>
+                                                );
+                                            })}
+                                            <div className="border-t pt-2 mt-2">
+                                                <div className="flex justify-between items-center font-semibold">
+                                                    <span>Total Female Wins</span>
+                                                    <span className="text-red-600">
+                                                        {Object.values(sportData.Female).reduce((sum, wins) => sum + wins, 0)}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                    </div>
                 </div>
             </div>
 
