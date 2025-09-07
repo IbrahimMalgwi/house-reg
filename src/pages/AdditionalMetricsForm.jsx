@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { db } from "../firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
-// Define teams with updated names
+// Define teams with updated names and colors
 const TEAMS = {
     RED: { name: "Jesus our Saviour", color: "#FF0000" },
     BLUE: { name: "Jesus our Healer", color: "#0000FF" },
@@ -20,8 +20,8 @@ const SPORTS = [
     { name: "50 Meters", hasGender: true, hasAgeGroup: false },
     { name: "70 Meters", hasGender: true, hasAgeGroup: false },
     { name: "100 Meters", hasGender: true, hasAgeGroup: false },
-    { name: "100 Meters Under 15", hasGender: true },
-    { name: "100 Meters Under 17 ", hasGender: true },
+    { name: "100 Meters Under 15 ", hasGender: true },
+    { name: "100 Meters Under 17 Boys", hasGender: true },
     { name: "800 Meters", hasGender: true, hasAgeGroup: false },
     { name: "4 x 100 Meters Relay", hasGender: true, hasAgeGroup: false },
     { name: "4 x 400 Meters Relay", hasGender: true, hasAgeGroup: false },
@@ -115,6 +115,13 @@ export default function AdditionalMetricsForm() {
     const selectedSport = SPORTS.find(sport => sport.name === formData.sportCategory);
     const showGenderField = selectedSport && selectedSport.hasGender;
     const showAgeGroupField = selectedSport && selectedSport.hasAgeGroup;
+
+    // NEW: Find the team key and color based on the selected winning team name
+    const findTeamByValue = (value) => {
+        return Object.entries(TEAMS).find(([key, team]) => team.name === value);
+    };
+    const selectedTeamEntry = findTeamByValue(formData.winningTeam);
+    const selectedTeamColor = selectedTeamEntry ? selectedTeamEntry[1].color : '#4f46e5'; // Default to indigo if no team
 
     return (
         <div className="max-w-4xl mx-auto py-8 px-4">
@@ -270,6 +277,7 @@ export default function AdditionalMetricsForm() {
 
                         {formData.teamWin && (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* UPDATE: Added dynamic shadow style based on selected team color */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Winning Team
@@ -278,7 +286,8 @@ export default function AdditionalMetricsForm() {
                                         name="winningTeam"
                                         value={formData.winningTeam}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all"
+                                        style={{ boxShadow: formData.winningTeam ? `0 0 0 3px ${selectedTeamColor}40` : 'none' }}
                                         required={formData.teamWin}
                                     >
                                         <option value="">Select Team</option>
@@ -402,13 +411,25 @@ export default function AdditionalMetricsForm() {
             {/* Success Modal */}
             {success && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
+                    {/* UPDATE: Dynamic border color based on winning team */}
                     <div
                         className="bg-white p-6 rounded-xl shadow-lg text-center max-w-sm w-full animate-pop-in"
-                        style={{ borderTop: "8px solid #4f46e5" }}
+                        style={{ borderTop: `8px solid ${success.winningTeam ? selectedTeamColor : '#4f46e5'}` }}
                     >
                         <div className="mb-4">
-                            <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center" style={{ backgroundColor: "#4f46e520" }}>
-                                <svg className="w-8 h-8" style={{ color: "#4f46e5" }} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            {/* UPDATE: Dynamic background and icon color based on winning team */}
+                            <div
+                                className="w-16 h-16 mx-auto rounded-full flex items-center justify-center"
+                                style={{ backgroundColor: `${success.winningTeam ? selectedTeamColor : '#4f46e5'}20` }}
+                            >
+                                <svg
+                                    className="w-8 h-8"
+                                    style={{ color: success.winningTeam ? selectedTeamColor : '#4f46e5' }}
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                                 </svg>
                             </div>
@@ -434,9 +455,10 @@ export default function AdditionalMetricsForm() {
                             </div>
                         )}
 
-                        {success.team && (
-                            <div className="my-2 p-2 bg-purple-100 rounded-lg">
-                                <span className="text-purple-700 font-medium">
+                        {/* UPDATE: Fixed the reference from `success.team` to `success.teamWin` */}
+                        {success.teamWin && success.winningTeam && (
+                            <div className="my-2 p-2 rounded-lg" style={{ backgroundColor: `${selectedTeamColor}20` }}>
+                                <span className="font-medium" style={{ color: selectedTeamColor }}>
                                     {success.winningTeam} - {success.position} in {success.sportCategory}
                                     {success.sportGender && ` (${success.sportGender})`}
                                     {success.ageGroup && ` - ${success.ageGroup}`}
