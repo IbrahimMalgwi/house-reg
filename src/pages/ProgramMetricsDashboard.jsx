@@ -1,5 +1,5 @@
 // src/pages/ProgramMetricsDashboard.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { db } from "../firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { CSVLink } from "react-csv";
@@ -40,6 +40,12 @@ const TEAMS = {
     PURPLE: { name: "Jesus our coming King", color: "#800080", short: "Coming King" }
 };
 
+// Create reverse mapping for team lookup efficiency
+const TEAM_NAME_TO_KEY_MAP = {};
+Object.keys(TEAMS).forEach(key => {
+    TEAM_NAME_TO_KEY_MAP[TEAMS[key].name] = key;
+});
+
 // Define updated sports categories with gender information
 const SPORTS = [
     { name: "Basketball", hasGender: true, hasAgeGroup: false },
@@ -63,6 +69,7 @@ const SPORTS = [
 export default function ProgramMetricsDashboard() {
     const [metricsData, setMetricsData] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [timeFilter, setTimeFilter] = useState("all");
 
     useEffect(() => {
@@ -70,6 +77,8 @@ export default function ProgramMetricsDashboard() {
     }, []);
 
     const fetchMetricsData = async () => {
+        setLoading(true);
+        setError(null);
         try {
             const metricsRef = collection(db, "programMetrics");
             const querySnapshot = await getDocs(metricsRef);
@@ -80,39 +89,46 @@ export default function ProgramMetricsDashboard() {
             setMetricsData(metrics);
         } catch (error) {
             console.error("Error fetching metrics data:", error);
+            setError("Failed to load metrics data. Please try again later.");
         } finally {
             setLoading(false);
         }
     };
 
-    const filterDataByTime = (data) => {
+    // Use useCallback to memoize the filter function
+    const filterDataByTime = useCallback((data) => {
+        if (timeFilter === "all") return data;
+
+        const now = new Date();
+        let cutoffDate;
+
         if (timeFilter === "week") {
-            const oneWeekAgo = new Date();
-            oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-            return data.filter(item => {
-                const itemDate = item.eventDate ? new Date(item.eventDate) :
-                    (item.createdAt ? new Date(item.createdAt.seconds * 1000) : null);
-                return itemDate && itemDate >= oneWeekAgo;
-            });
+            cutoffDate = new Date();
+            cutoffDate.setDate(now.getDate() - 7);
+        } else if (timeFilter === "month") {
+            cutoffDate = new Date();
+            cutoffDate.setMonth(now.getMonth() - 1);
         }
 
-        if (timeFilter === "month") {
-            const oneMonthAgo = new Date();
-            oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-            return data.filter(item => {
-                const itemDate = item.eventDate ? new Date(item.eventDate) :
-                    (item.createdAt ? new Date(item.createdAt.seconds * 1000) : null);
-                return itemDate && itemDate >= oneMonthAgo;
-            });
-        }
+        return data.filter(item => {
+            // Determine which date field to use, with a fallback
+            let itemDate;
+            if (item.eventDate) {
+                itemDate = new Date(item.eventDate);
+            } else if (item.createdAt && item.createdAt.seconds) {
+                itemDate = new Date(item.createdAt.seconds * 1000);
+            } else {
+                // If no date is found, exclude it from time-filtered views
+                return false;
+            }
+            return itemDate >= cutoffDate;
+        });
+    }, [timeFilter]); // timeFilter is a dependency
 
-        return data;
-    };
+    const filteredData = useMemo(() => filterDataByTime(metricsData), [metricsData, filterDataByTime]);
 
-    const filteredData = filterDataByTime(metricsData);
-
-    // Calculate all metrics
-    const calculateMetrics = () => {
+    // Calculate all metrics - use useCallback to memoize this function
+    const calculateMetrics = useCallback(() => {
         // Spiritual metrics
         const decisionsForChrist = filteredData.filter(item => item.decisionForChrist).length;
         const holyGhostBaptisms = filteredData.filter(item => item.holyGhostBaptism).length;
@@ -286,16 +302,17 @@ export default function ProgramMetricsDashboard() {
             sportRankings,
             overallRanking
         };
-    };
+    }, [filteredData]); // filteredData is a dependency
 
-    const metrics = calculateMetrics();
+    const metrics = useMemo(() => calculateMetrics(), [calculateMetrics]);
 
     // Prepare data for CSV export
-    const csvData = {
+    const csvData = useMemo(() => ({
         data: filteredData.map(item => ({
             "Participant Name": item.participantName,
             "Decision for Christ": item.decisionForChrist ? "Yes" : "No",
             "Holy Ghost Baptism": item.holyGhostBaptism ? "Yes" : "No",
+            "Holy Ghost Baptism Details": item.holyGhostBaptismDetails || "",
             "Injured": item.injured ? "Yes" : "No",
             "Injury Details": item.injuryDetails || "",
             "Received Counseling": item.receiveCounseling ? "Yes" : "No",
@@ -312,6 +329,7 @@ export default function ProgramMetricsDashboard() {
             { label: "Participant Name", key: "Participant Name" },
             { label: "Decision for Christ", key: "Decision for Christ" },
             { label: "Holy Ghost Baptism", key: "Holy Ghost Baptism" },
+            { label: "Holy Ghost Baptism Details", key: "Holy Ghost Baptism Details" },
             { label: "Injured", key: "Injured" },
             { label: "Injury Details", key: "Injury Details" },
             { label: "Received Counseling", key: "Received Counseling" },
@@ -324,10 +342,10 @@ export default function ProgramMetricsDashboard() {
             { label: "Age Group", key: "Age Group" },
             { label: "Event Date", key: "Event Date" }
         ]
-    };
+    }), [filteredData]);
 
     // Chart data for spiritual metrics
-    const spiritualChartData = {
+    const spiritualChartData = useMemo(() => ({
         labels: ["Decisions for Christ", "Holy Ghost Baptisms", "Injuries", "Counseling Sessions"],
         datasets: [
             {
@@ -337,12 +355,12 @@ export default function ProgramMetricsDashboard() {
                 borderColor: '#ffffff'
             }
         ]
-    };
+    }), [metrics.decisionsForChrist, metrics.holyGhostBaptisms, metrics.injuries, metrics.counselingSessions]);
 
     // Chart data for team wins
-    const teamWinsChartData = {
+    const teamWinsChartData = useMemo(() => ({
         labels: Object.keys(metrics.winsByTeam).map(team => {
-            const teamKey = Object.keys(TEAMS).find(key => TEAMS[key].name === team);
+            const teamKey = TEAM_NAME_TO_KEY_MAP[team];
             return TEAMS[teamKey]?.short || team;
         }),
         datasets: [
@@ -353,10 +371,10 @@ export default function ProgramMetricsDashboard() {
                 borderColor: '#ffffff'
             }
         ]
-    };
+    }), [metrics.winsByTeam]);
 
     // Chart data for wins by gender
-    const genderWinsChartData = {
+    const genderWinsChartData = useMemo(() => ({
         labels: Object.keys(metrics.winsByGender),
         datasets: [
             {
@@ -366,10 +384,10 @@ export default function ProgramMetricsDashboard() {
                 borderColor: '#ffffff'
             }
         ]
-    };
+    }), [metrics.winsByGender]);
 
     // Chart data for positions
-    const positionsChartData = {
+    const positionsChartData = useMemo(() => ({
         labels: Object.keys(metrics.winsByPosition),
         datasets: [
             {
@@ -379,10 +397,10 @@ export default function ProgramMetricsDashboard() {
                 borderColor: '#ffffff'
             }
         ]
-    };
+    }), [metrics.winsByPosition]);
 
     // Chart data for wins by team and gender (stacked bar chart)
-    const teamGenderWinsChartData = {
+    const teamGenderWinsChartData = useMemo(() => ({
         labels: Object.keys(TEAMS).map(key => TEAMS[key].short),
         datasets: [
             {
@@ -402,10 +420,10 @@ export default function ProgramMetricsDashboard() {
                 backgroundColor: '#e74c3c',
             }
         ]
-    };
+    }), [metrics.winsByTeamAndGender]);
 
     // Chart data for wins by sport and gender
-    const sportGenderWinsChartData = {
+    const sportGenderWinsChartData = useMemo(() => ({
         labels: Object.keys(metrics.winsBySportAndGender),
         datasets: [
             {
@@ -423,7 +441,7 @@ export default function ProgramMetricsDashboard() {
                 backgroundColor: '#e74c3c',
             }
         ]
-    };
+    }), [metrics.winsBySportAndGender]);
 
     if (loading) {
         return (
@@ -435,6 +453,25 @@ export default function ProgramMetricsDashboard() {
             </div>
         );
     }
+
+    if (error) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-50 to-purple-100">
+                <div className="text-center bg-white p-8 rounded-2xl shadow-lg">
+                    <div className="text-red-500 text-6xl mb-4">⚠️</div>
+                    <h2 className="text-xl font-bold text-gray-800 mb-2">Error Loading Data</h2>
+                    <p className="text-gray-600 mb-4">{error}</p>
+                    <button
+                        onClick={fetchMetricsData}
+                        className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+                    >
+                        Retry
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
 
     return (
         <div className="max-w-7xl mx-auto p-4">
@@ -711,7 +748,7 @@ export default function ProgramMetricsDashboard() {
                                         </h3>
                                         <div className="space-y-2">
                                             {maleWins.map(([team, wins], index) => {
-                                                const teamKey = Object.keys(TEAMS).find(key => TEAMS[key].name === team);
+                                                const teamKey = TEAM_NAME_TO_KEY_MAP[team];
                                                 const teamColor = TEAMS[teamKey]?.color || "#6b7280";
                                                 const teamShort = TEAMS[teamKey]?.short || team;
 
@@ -762,7 +799,7 @@ export default function ProgramMetricsDashboard() {
                                         </h3>
                                         <div className="space-y-2">
                                             {femaleWins.map(([team, wins], index) => {
-                                                const teamKey = Object.keys(TEAMS).find(key => TEAMS[key].name === team);
+                                                const teamKey = TEAM_NAME_TO_KEY_MAP[team];
                                                 const teamColor = TEAMS[teamKey]?.color || "#6b7280";
                                                 const teamShort = TEAMS[teamKey]?.short || team;
 
@@ -801,7 +838,7 @@ export default function ProgramMetricsDashboard() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {Object.entries(metrics.teamPositions).map(([team, positions]) => {
-                        const teamKey = Object.keys(TEAMS).find(key => TEAMS[key].name === team);
+                        const teamKey = TEAM_NAME_TO_KEY_MAP[team];
                         const teamColor = TEAMS[teamKey]?.color || "#6b7280";
 
                         return (
@@ -841,7 +878,7 @@ export default function ProgramMetricsDashboard() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {Object.entries(metrics.winsByTeamAndGender).map(([team, genderData]) => {
-                        const teamKey = Object.keys(TEAMS).find(key => TEAMS[key].name === team);
+                        const teamKey = TEAM_NAME_TO_KEY_MAP[team];
                         const teamColor = TEAMS[teamKey]?.color || "#6b7280";
                         const totalWins = genderData.Total;
 
@@ -885,23 +922,19 @@ export default function ProgramMetricsDashboard() {
                         <div
                             className="inline-block p-6 rounded-2xl text-white text-center mx-auto mb-4"
                             style={{
-                                backgroundColor: TEAMS[Object.keys(TEAMS).find(key =>
-                                    TEAMS[key].name === metrics.overallRanking[0][0]
-                                )]?.color
+                                backgroundColor: TEAMS[TEAM_NAME_TO_KEY_MAP[metrics.overallRanking[0][0]]]?.color
                             }}
                         >
                             <div className="text-4xl font-bold mb-2">1st</div>
                             <div className="text-2xl font-semibold">
-                                {TEAMS[Object.keys(TEAMS).find(key =>
-                                    TEAMS[key].name === metrics.overallRanking[0][0]
-                                )]?.short}
+                                {TEAMS[TEAM_NAME_TO_KEY_MAP[metrics.overallRanking[0][0]]]?.short}
                             </div>
                             <div className="text-lg">{metrics.overallRanking[0][1]} Wins</div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
                             {metrics.overallRanking.slice(1, 3).map(([team, wins], index) => {
-                                const teamKey = Object.keys(TEAMS).find(key => TEAMS[key].name === team);
+                                const teamKey = TEAM_NAME_TO_KEY_MAP[team];
                                 const teamData = TEAMS[teamKey];
                                 return (
                                     <div
