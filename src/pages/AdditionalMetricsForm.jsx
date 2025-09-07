@@ -20,10 +20,8 @@ const SPORTS = [
     { name: "50 Meters", hasGender: true, hasAgeGroup: false },
     { name: "70 Meters", hasGender: true, hasAgeGroup: false },
     { name: "100 Meters", hasGender: true, hasAgeGroup: false },
-    { name: "100 Meters Under 15 Boys", hasGender: false, hasAgeGroup: false },
-    { name: "100 Meters Under 15 Girls", hasGender: false, hasAgeGroup: false },
-    { name: "100 Meters Under 17 Boys", hasGender: false, hasAgeGroup: false },
-    { name: "100 Meters Under 17 Girls", hasGender: false, hasAgeGroup: false },
+    { name: "100 Meters Under 15", hasGender: true },
+    { name: "100 Meters Under 17 ", hasGender: true },
     { name: "800 Meters", hasGender: true, hasAgeGroup: false },
     { name: "4 x 100 Meters Relay", hasGender: true, hasAgeGroup: false },
     { name: "4 x 400 Meters Relay", hasGender: true, hasAgeGroup: false },
@@ -436,7 +434,7 @@ export default function AdditionalMetricsForm() {
                             </div>
                         )}
 
-                        {success.team极 && (
+                        {success.team && (
                             <div className="my-2 p-2 bg-purple-100 rounded-lg">
                                 <span className="text-purple-700 font-medium">
                                     {success.winningTeam} - {success.position} in {success.sportCategory}
