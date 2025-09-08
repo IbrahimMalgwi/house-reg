@@ -65,11 +65,16 @@ export default function Header() {
                                 📉 Program
                             </NavLink>
 
-                            {/* Admin link - Only show for admin users */}
+                            {/* Admin links - Only show for admin users */}
                             {userRole === "admin" && (
-                                <NavLink to="/admin" currentPath={location.pathname}>
-                                    👑 Admin
-                                </NavLink>
+                                <>
+                                    <NavLink to="/admin" currentPath={location.pathname}>
+                                        👑 Admin
+                                    </NavLink>
+                                    <NavLink to="/admin/registrations" currentPath={location.pathname}>
+                                        📋 Manage Registrations
+                                    </NavLink>
+                                </>
                             )}
 
                             {/* Theme toggle */}
@@ -195,11 +200,16 @@ export default function Header() {
                                 👤 Profile
                             </MobileNavLink>
 
-                            {/* Admin link for mobile - Only show for admin users */}
+                            {/* Admin links for mobile - Only show for admin users */}
                             {userRole === "admin" && (
-                                <MobileNavLink to="/admin" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
-                                    👑 Admin
-                                </MobileNavLink>
+                                <>
+                                    <MobileNavLink to="/admin" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
+                                        👑 Admin Panel
+                                    </MobileNavLink>
+                                    <MobileNavLink to="/admin/registrations" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
+                                        📋 Manage Registrations
+                                    </MobileNavLink>
+                                </>
                             )}
 
                             <div className="pt-3 border-t border-gray-100 dark:border-gray-700 mt-3">

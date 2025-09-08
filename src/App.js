@@ -17,6 +17,8 @@ import ProgramMetricsDashboard from "./pages/ProgramMetricsDashboard";
 import WelcomePage from "./pages/WelcomePage";
 import RoleRoute from "./components/RoleRoute";
 
+import RegistrationsManager from "./pages/admin/RegistrationsManager";
+
 function AppContent() {
     return (
         <Layout>
@@ -56,6 +58,14 @@ function AppContent() {
                     element={
                         <RoleRoute allowedRoles={["admin"]}>
                             <AdditionalMetricsForm />
+                        </RoleRoute>
+                    }
+                />
+                <Route
+                    path="/admin/registrations"
+                    element={
+                        <RoleRoute allowedRoles={["admin"]}>
+                            <RegistrationsManager />
                         </RoleRoute>
                     }
                 />

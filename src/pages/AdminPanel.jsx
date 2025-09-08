@@ -1,8 +1,8 @@
 // src/pages/AdminPanel.jsx
 import React, { useState, useEffect } from "react";
 import { db } from "../firebase";
-import { collection, getDocs, doc, updateDoc, deleteDoc } from "firebase/firestore";
-
+import { collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from "firebase/firestore";
+import { Link } from "react-router-dom"; // Import Link for navigation
 import AdminRoute from "../components/AdminRoute";
 
 export default function AdminPanel() {
@@ -31,8 +31,9 @@ export default function AdminPanel() {
             }));
             setUsers(usersData);
 
-            // Fetch all registrations
-            const regSnapshot = await getDocs(collection(db, "registrations"));
+            // Fetch all registrations - NOW WITH ORDERING
+            const q = query(collection(db, "registrations"), orderBy("createdAt", "desc"));
+            const regSnapshot = await getDocs(q);
             const regData = regSnapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
@@ -81,21 +82,36 @@ export default function AdminPanel() {
         }
     };
 
+    // NEW FUNCTION: Delete a registration
+    const handleDeleteRegistration = async (regId, regName) => {
+        if (!window.confirm(`Are you sure you want to delete the registration for ${regName}? This action cannot be undone.`)) {
+            return;
+        }
+
+        try {
+            await deleteDoc(doc(db, "registrations", regId));
+            // Optimistic update: remove from local state
+            setRegistrations(registrations.filter(reg => reg.id !== regId));
+            setStats(prev => ({ ...prev, totalRegistrations: prev.totalRegistrations - 1 }));
+        } catch (error) {
+            console.error("Error deleting registration:", error);
+            alert("Failed to delete registration: " + error.message);
+        }
+    };
+
     if (loading) {
         return (
             <AdminRoute>
-
-                    <div className="flex items-center justify-center min-h-screen">
-                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
-                    </div>
-
+                <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
+                </div>
             </AdminRoute>
         );
     }
 
     return (
         <AdminRoute>
-
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
                 <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Admin Panel</h1>
 
@@ -132,6 +148,24 @@ export default function AdminPanel() {
                             <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                                 <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Pending Deletions</h3>
                                 <p className="text-3xl font-bold text-red-600 dark:text-red-400">{stats.pendingDeletions}</p>
+                            </div>
+                            {/* NEW: Quick Action Buttons */}
+                            <div className="md:col-span-3 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Quick Actions</h3>
+                                <div className="flex space-x-4">
+                                    <Link
+                                        to="/admin/registrations"
+                                        className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
+                                    >
+                                        Manage All Registrations
+                                    </Link>
+                                    <button
+                                        onClick={fetchData}
+                                        className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors"
+                                    >
+                                        Refresh Data
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     )}
@@ -209,9 +243,6 @@ export default function AdminPanel() {
                                                 >
                                                     Delete
                                                 </button>
-                                                <button className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300">
-                                                    View Details
-                                                </button>
                                             </td>
                                         </tr>
                                     ))}
@@ -221,11 +252,17 @@ export default function AdminPanel() {
                         </div>
                     )}
 
-                    {/* Registrations Tab */}
+                    {/* Registrations Tab - UPDATED WITH ACTIONS */}
                     {activeTab === "registrations" && (
                         <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-                            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
                                 <h3 className="text-lg font-medium text-gray-900 dark:text-white">Registration Management</h3>
+                                <Link
+                                    to="/admin/registrations"
+                                    className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm hover:bg-indigo-700 transition-colors"
+                                >
+                                    Advanced Management
+                                </Link>
                             </div>
                             <div className="overflow-x-auto">
                                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -233,6 +270,9 @@ export default function AdminPanel() {
                                     <tr>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                             Participant
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            Age / Sex
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                             House
@@ -250,24 +290,39 @@ export default function AdminPanel() {
                                         <tr key={registration.id}>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="text-sm font-medium text-gray-900 dark:text-white">
-                                                    {registration.fullName}
+                                                    {registration.name || registration.fullName}
                                                 </div>
                                                 <div className="text-sm text-gray-500 dark:text-gray-400">
                                                     {registration.email}
+                                                    {registration.phone && ` • 📞 ${registration.phone}`}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="text-sm text-gray-900 dark:text-white">{registration.age}</div>
+                                                <div className="text-sm text-gray-500 dark:text-gray-400">{registration.sex}</div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
                                                     <span className="px-2 py-1 text-xs font-medium rounded-full text-white"
-                                                          style={{ backgroundColor: registration.houseColor }}>
-                                                        {registration.houseName}
+                                                          style={{ backgroundColor: registration.color || registration.houseColor }}>
+                                                        {registration.house || registration.houseName}
                                                     </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                                {new Date(registration.createdAt).toLocaleDateString()}
+                                                {registration.createdAt?.toDate ? registration.createdAt.toDate().toLocaleDateString() : 'N/A'}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                                <button className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300">
-                                                    View Details
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                {/* Link to the detailed management page for editing */}
+                                                <Link
+                                                    to={`/admin/registrations?edit=${registration.id}`}
+                                                    className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 mr-3"
+                                                >
+                                                    Edit
+                                                </Link>
+                                                <button
+                                                    onClick={() => handleDeleteRegistration(registration.id, registration.name || registration.fullName)}
+                                                    className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
+                                                >
+                                                    Delete
                                                 </button>
                                             </td>
                                         </tr>
@@ -275,6 +330,11 @@ export default function AdminPanel() {
                                     </tbody>
                                 </table>
                             </div>
+                            {registrations.length === 0 && (
+                                <div className="text-center py-12">
+                                    <p className="text-gray-500 dark:text-gray-400">No registrations found.</p>
+                                </div>
+                            )}
                         </div>
                     )}
 
@@ -310,7 +370,7 @@ export default function AdminPanel() {
                         </div>
                     )}
                 </div>
-
+            </div>
         </AdminRoute>
     );
 }
