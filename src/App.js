@@ -17,8 +17,9 @@ import ProgramMetricsDashboard from "./pages/ProgramMetricsDashboard";
 import WelcomePage from "./pages/WelcomePage";
 import RoleRoute from "./components/RoleRoute";
 import StaffManager from "./pages/admin/StaffManager";
-
 import RegistrationsManager from "./pages/admin/RegistrationsManager";
+import ProgramMetricsManager from "./pages/admin/ProgramMetricsManager";
+import ProgramMetricsView from "./pages/ProgramMetricsView";
 
 function AppContent() {
     return (
@@ -109,6 +110,25 @@ function AppContent() {
                     element={
                         <RoleRoute allowedRoles={["admin"]}>
                             <StaffManager />
+                        </RoleRoute>
+                    }
+                />
+                {/* Admin-only program metrics management */}
+                <Route
+                    path="/admin/program-metrics"
+                    element={
+                        <RoleRoute allowedRoles={["admin"]}>
+                            <ProgramMetricsManager />
+                        </RoleRoute>
+                    }
+                />
+
+                {/* Read-only program metrics for staff/users */}
+                <Route
+                    path="/program-metrics"
+                    element={
+                        <RoleRoute allowedRoles={["staff", "user"]}>
+                            <ProgramMetricsView />
                         </RoleRoute>
                     }
                 />

@@ -55,11 +55,23 @@ export default function Header() {
                             <NavLink to="/metrics-form" currentPath={location.pathname}>
                                 📋 Metrics
                             </NavLink>
+
+                            {/* Program Metrics - Different links based on role */}
+                            {userRole === "admin" ? (
+                                <NavLink to="/admin/program-metrics" currentPath={location.pathname}>
+                                    📊 Manage Metrics
+                                </NavLink>
+                            ) : (
+                                <NavLink to="/program-metrics" currentPath={location.pathname}>
+                                    📊 View Metrics
+                                </NavLink>
+                            )}
+
                             <NavLink to="/analysis" currentPath={location.pathname}>
-                                📊 Analytics
+                                📈 Analytics
                             </NavLink>
                             <NavLink to="/staff-dashboard" currentPath={location.pathname}>
-                                📈 Marshals
+                                👥 Marshals
                             </NavLink>
                             <NavLink to="/metrics-dashboard" currentPath={location.pathname}>
                                 📉 Program
@@ -72,10 +84,10 @@ export default function Header() {
                                         👑 Admin
                                     </NavLink>
                                     <NavLink to="/admin/registrations" currentPath={location.pathname}>
-                                        📋 Manage Registrations
+                                        📋 Teens
                                     </NavLink>
                                     <NavLink to="/admin/staff" currentPath={location.pathname}>
-                                        👥 Manage Staff
+                                        👥 Staff
                                     </NavLink>
                                 </>
                             )}
@@ -188,13 +200,25 @@ export default function Header() {
                                 👥 Marshal Registration
                             </MobileNavLink>
                             <MobileNavLink to="/metrics-form" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
-                                📋 Program Metrics
+                                📋 Program Metrics Form
                             </MobileNavLink>
+
+                            {/* Program Metrics - Different links based on role */}
+                            {userRole === "admin" ? (
+                                <MobileNavLink to="/admin/program-metrics" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
+                                    📊 Manage Metrics
+                                </MobileNavLink>
+                            ) : (
+                                <MobileNavLink to="/program-metrics" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
+                                    📊 View Metrics
+                                </MobileNavLink>
+                            )}
+
                             <MobileNavLink to="/analysis" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
-                                📊 Teens Analytics
+                                📈 Teens Analytics
                             </MobileNavLink>
                             <MobileNavLink to="/staff-dashboard" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
-                                📈 Marshal Analytics
+                                👥 Marshal Analytics
                             </MobileNavLink>
                             <MobileNavLink to="/metrics-dashboard" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
                                 📉 Program Analytics
@@ -210,7 +234,7 @@ export default function Header() {
                                         👑 Admin Panel
                                     </MobileNavLink>
                                     <MobileNavLink to="/admin/registrations" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
-                                        📋 Manage Registrations
+                                        📋 Manage Teens
                                     </MobileNavLink>
                                     <MobileNavLink to="/admin/staff" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
                                         👥 Manage Staff
