@@ -16,12 +16,12 @@ const SPORTS = [
     { name: "Basketball", hasGender: true, hasAgeGroup: false },
     { name: "Volleyball", hasGender: true, hasAgeGroup: false },
     { name: "Football", hasGender: true, hasAgeGroup: true },
-    { name: "relay", hasGender: false, hasAgeGroup: false },
+    { name: "Relay", hasGender: false, hasAgeGroup: false },
     { name: "50 Meters", hasGender: true, hasAgeGroup: false },
     { name: "70 Meters", hasGender: true, hasAgeGroup: false },
     { name: "100 Meters", hasGender: true, hasAgeGroup: false },
-    { name: "100 Meters Under 15 ", hasGender: true },
-    { name: "100 Meters Under 17 Boys", hasGender: true },
+    { name: "100 Meters Under 15", hasGender: true, hasAgeGroup: true },
+    { name: "100 Meters Under 17 Boys", hasGender: true, hasAgeGroup: true },
     { name: "800 Meters", hasGender: true, hasAgeGroup: false },
     { name: "4 x 100 Meters Relay", hasGender: true, hasAgeGroup: false },
     { name: "4 x 400 Meters Relay", hasGender: true, hasAgeGroup: false },
@@ -54,6 +54,15 @@ export default function AdditionalMetricsForm() {
 
     const [submitting, setSubmitting] = useState(false);
     const [success, setSuccess] = useState(null);
+
+    // Helper function to find team by name
+    const findTeamByName = (teamName) => {
+        return Object.values(TEAMS).find(team => team.name === teamName);
+    };
+
+    // Get the currently selected team's color
+    const selectedTeam = findTeamByName(formData.winningTeam);
+    const selectedTeamColor = selectedTeam ? selectedTeam.color : '#4f46e5';
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -115,13 +124,6 @@ export default function AdditionalMetricsForm() {
     const selectedSport = SPORTS.find(sport => sport.name === formData.sportCategory);
     const showGenderField = selectedSport && selectedSport.hasGender;
     const showAgeGroupField = selectedSport && selectedSport.hasAgeGroup;
-
-    // NEW: Find the team key and color based on the selected winning team name
-    const findTeamByValue = (value) => {
-        return Object.entries(TEAMS).find(([key, team]) => team.name === value);
-    };
-    const selectedTeamEntry = findTeamByValue(formData.winningTeam);
-    const selectedTeamColor = selectedTeamEntry ? selectedTeamEntry[1].color : '#4f46e5'; // Default to indigo if no team
 
     return (
         <div className="max-w-4xl mx-auto py-8 px-4">
@@ -277,7 +279,6 @@ export default function AdditionalMetricsForm() {
 
                         {formData.teamWin && (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {/* UPDATE: Added dynamic shadow style based on selected team color */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Winning Team
@@ -287,13 +288,16 @@ export default function AdditionalMetricsForm() {
                                         value={formData.winningTeam}
                                         onChange={handleChange}
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all"
-                                        style={{ boxShadow: formData.winningTeam ? `0 0 0 3px ${selectedTeamColor}40` : 'none' }}
+                                        style={{
+                                            boxShadow: formData.winningTeam ? `0 0 0 3px ${selectedTeamColor}40` : 'none',
+                                            borderColor: formData.winningTeam ? selectedTeamColor : '#d1d5db'
+                                        }}
                                         required={formData.teamWin}
                                     >
                                         <option value="">Select Team</option>
-                                        {Object.keys(TEAMS).map(key => (
-                                            <option key={key} value={TEAMS[key].name}>
-                                                {TEAMS[key].name}
+                                        {Object.values(TEAMS).map(team => (
+                                            <option key={team.name} value={team.name}>
+                                                {team.name}
                                             </option>
                                         ))}
                                     </select>
@@ -411,68 +415,76 @@ export default function AdditionalMetricsForm() {
             {/* Success Modal */}
             {success && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
-                    {/* UPDATE: Dynamic border color based on winning team */}
-                    <div
-                        className="bg-white p-6 rounded-xl shadow-lg text-center max-w-sm w-full animate-pop-in"
-                        style={{ borderTop: `8px solid ${success.winningTeam ? selectedTeamColor : '#4f46e5'}` }}
-                    >
-                        <div className="mb-4">
-                            {/* UPDATE: Dynamic background and icon color based on winning team */}
+                    {/* Get the team color for the success modal */}
+                    {(() => {
+                        const successTeam = findTeamByName(success.winningTeam);
+                        const successTeamColor = successTeam ? successTeam.color : '#4f46e5';
+
+                        return (
                             <div
-                                className="w-16 h-16 mx-auto rounded-full flex items-center justify-center"
-                                style={{ backgroundColor: `${success.winningTeam ? selectedTeamColor : '#4f46e5'}20` }}
+                                className="bg-white p-6 rounded-xl shadow-lg text-center max-w-sm w-full animate-pop-in"
+                                style={{ borderTop: `8px solid ${successTeamColor}` }}
                             >
-                                <svg
-                                    className="w-8 h-8"
-                                    style={{ color: success.winningTeam ? selectedTeamColor : '#4f46e5' }}
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                    xmlns="http://www.w3.org/2000/svg"
+                                <div className="mb-4">
+                                    <div
+                                        className="w-16 h-16 mx-auto rounded-full flex items-center justify-center"
+                                        style={{ backgroundColor: `${successTeamColor}20` }}
+                                    >
+                                        <svg
+                                            className="w-8 h-8"
+                                            style={{ color: successTeamColor }}
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                                    Metrics Recorded Successfully!
+                                </h3>
+
+                                <p className="mt-3 text-gray-600">
+                                    Data for <strong className="text-gray-800">{success.participantName}</strong> has been recorded.
+                                </p>
+
+                                {success.decisionForChrist && (
+                                    <div className="my-2 p-2 bg-green-100 rounded-lg">
+                                        <span className="text-green-700 font-medium">✓ Decision for Christ</span>
+                                    </div>
+                                )}
+
+                                {success.holyGhostBaptism && (
+                                    <div className="my-2 p-2 bg-blue-100 rounded-lg">
+                                        <span className="text-blue-700 font-medium">✓ Holy Ghost Baptism</span>
+                                    </div>
+                                )}
+
+                                {success.teamWin && success.winningTeam && (
+                                    <div
+                                        className="my-2 p-2 rounded-lg"
+                                        style={{ backgroundColor: `${successTeamColor}20` }}
+                                    >
+                                        <span className="font-medium" style={{ color: successTeamColor }}>
+                                            {success.winningTeam} - {success.position} in {success.sportCategory}
+                                            {success.sportGender && ` (${success.sportGender})`}
+                                            {success.ageGroup && ` - ${success.ageGroup}`}
+                                        </span>
+                                    </div>
+                                )}
+
+                                <button
+                                    onClick={() => setSuccess(null)}
+                                    className="mt-4 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
                                 >
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
+                                    Continue
+                                </button>
                             </div>
-                        </div>
-
-                        <h3 className="text-2xl font-bold text-gray-800 mb-2">
-                            Metrics Recorded Successfully!
-                        </h3>
-
-                        <p className="mt-3 text-gray-600">
-                            Data for <strong className="text-gray-800">{success.participantName}</strong> has been recorded.
-                        </p>
-
-                        {success.decisionForChrist && (
-                            <div className="my-2 p-2 bg-green-100 rounded-lg">
-                                <span className="text-green-700 font-medium">✓ Decision for Christ</span>
-                            </div>
-                        )}
-
-                        {success.holyGhostBaptism && (
-                            <div className="my-2 p-2 bg-blue-100 rounded-lg">
-                                <span className="text-blue-700 font-medium">✓ Holy Ghost Baptism</span>
-                            </div>
-                        )}
-
-                        {/* UPDATE: Fixed the reference from `success.team` to `success.teamWin` */}
-                        {success.teamWin && success.winningTeam && (
-                            <div className="my-2 p-2 rounded-lg" style={{ backgroundColor: `${selectedTeamColor}20` }}>
-                                <span className="font-medium" style={{ color: selectedTeamColor }}>
-                                    {success.winningTeam} - {success.position} in {success.sportCategory}
-                                    {success.sportGender && ` (${success.sportGender})`}
-                                    {success.ageGroup && ` - ${success.ageGroup}`}
-                                </span>
-                            </div>
-                        )}
-
-                        <button
-                            onClick={() => setSuccess(null)}
-                            className="mt-4 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-                        >
-                            Continue
-                        </button>
-                    </div>
+                        );
+                    })()}
                 </div>
             )}
         </div>

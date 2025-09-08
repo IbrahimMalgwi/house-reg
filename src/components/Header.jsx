@@ -74,6 +74,9 @@ export default function Header() {
                                     <NavLink to="/admin/registrations" currentPath={location.pathname}>
                                         📋 Manage Registrations
                                     </NavLink>
+                                    <NavLink to="/admin/staff" currentPath={location.pathname}>
+                                        👥 Manage Staff
+                                    </NavLink>
                                 </>
                             )}
 
@@ -208,6 +211,9 @@ export default function Header() {
                                     </MobileNavLink>
                                     <MobileNavLink to="/admin/registrations" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
                                         📋 Manage Registrations
+                                    </MobileNavLink>
+                                    <MobileNavLink to="/admin/staff" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
+                                        👥 Manage Staff
                                     </MobileNavLink>
                                 </>
                             )}

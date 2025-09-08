@@ -16,6 +16,7 @@ import AdditionalMetricsForm from "./pages/AdditionalMetricsForm";
 import ProgramMetricsDashboard from "./pages/ProgramMetricsDashboard";
 import WelcomePage from "./pages/WelcomePage";
 import RoleRoute from "./components/RoleRoute";
+import StaffManager from "./pages/admin/StaffManager";
 
 import RegistrationsManager from "./pages/admin/RegistrationsManager";
 
@@ -100,6 +101,14 @@ function AppContent() {
                     element={
                         <RoleRoute allowedRoles={["staff", "user"]}>
                             <ProgramMetricsDashboard />
+                        </RoleRoute>
+                    }
+                />
+                <Route
+                    path="/admin/staff"
+                    element={
+                        <RoleRoute allowedRoles={["admin"]}>
+                            <StaffManager />
                         </RoleRoute>
                     }
                 />
