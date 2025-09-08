@@ -10,85 +10,91 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import AdminPanel from "./pages/AdminPanel";
-import PrivateRoute from "./components/PrivateRoute";
 import StaffRegistration from "./pages/StaffRegistration";
 import StaffDashboard from "./pages/StaffDashboard";
 import AdditionalMetricsForm from "./pages/AdditionalMetricsForm";
 import ProgramMetricsDashboard from "./pages/ProgramMetricsDashboard";
 import WelcomePage from "./pages/WelcomePage";
+import RoleRoute from "./components/RoleRoute";
 
 function AppContent() {
     return (
         <Layout>
             <Routes>
+                {/* Public pages */}
                 <Route path="/" element={<WelcomePage />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
+
+                {/* Admin-only pages */}
                 <Route
                     path="/register"
                     element={
-                        <PrivateRoute>
+                        <RoleRoute allowedRoles={["admin"]}>
                             <RegistrationForm />
-                        </PrivateRoute>
-                    }
-                />
-                <Route
-                    path="/analysis"
-                    element={
-                        <PrivateRoute>
-                            <AnalysisDashboard />
-                        </PrivateRoute>
-                    }
-                />
-                <Route
-                    path="/profile"
-                    element={
-                        <PrivateRoute>
-                            <Profile />
-                        </PrivateRoute>
+                        </RoleRoute>
                     }
                 />
                 <Route
                     path="/admin"
                     element={
-                        <PrivateRoute>
+                        <RoleRoute allowedRoles={["admin"]}>
                             <AdminPanel />
-                        </PrivateRoute>
+                        </RoleRoute>
                     }
                 />
                 <Route
                     path="/staff-registration"
                     element={
-                        <PrivateRoute>
+                        <RoleRoute allowedRoles={["admin"]}>
                             <StaffRegistration />
-                        </PrivateRoute>
-                    }
-                />
-
-                <Route
-                    path="/staff-dashboard"
-                    element={
-                        <PrivateRoute>
-                            <StaffDashboard />
-                        </PrivateRoute>
+                        </RoleRoute>
                     }
                 />
                 <Route
                     path="/metrics-form"
                     element={
-                        <PrivateRoute>
+                        <RoleRoute allowedRoles={["admin"]}>
                             <AdditionalMetricsForm />
-                        </PrivateRoute>
+                        </RoleRoute>
+                    }
+                />
+
+                {/* Accessible by staff + user (admin always has access too) */}
+                <Route
+                    path="/analysis"
+                    element={
+                        <RoleRoute allowedRoles={["staff", "user"]}>
+                            <AnalysisDashboard />
+                        </RoleRoute>
+                    }
+                />
+                <Route
+                    path="/profile"
+                    element={
+                        <RoleRoute allowedRoles={["staff", "user"]}>
+                            <Profile />
+                        </RoleRoute>
+                    }
+                />
+                <Route
+                    path="/staff-dashboard"
+                    element={
+                        <RoleRoute allowedRoles={["staff", "user"]}>
+                            <StaffDashboard />
+                        </RoleRoute>
                     }
                 />
                 <Route
                     path="/metrics-dashboard"
                     element={
-                        <PrivateRoute>
+                        <RoleRoute allowedRoles={["staff", "user"]}>
                             <ProgramMetricsDashboard />
-                        </PrivateRoute>
+                        </RoleRoute>
                     }
                 />
+
+                {/* Fallback */}
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </Layout>
