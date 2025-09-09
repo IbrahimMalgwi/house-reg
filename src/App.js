@@ -12,7 +12,6 @@ import Profile from "./pages/Profile";
 import AdminPanel from "./pages/AdminPanel";
 import StaffRegistration from "./pages/StaffRegistration";
 import StaffDashboard from "./pages/StaffDashboard";
-import AdditionalMetricsForm from "./pages/AdditionalMetricsForm";
 import ProgramMetricsDashboard from "./pages/ProgramMetricsDashboard";
 import WelcomePage from "./pages/WelcomePage";
 import RoleRoute from "./components/RoleRoute";
@@ -20,6 +19,9 @@ import StaffManager from "./pages/admin/StaffManager";
 import RegistrationsManager from "./pages/admin/RegistrationsManager";
 import ProgramMetricsManager from "./pages/admin/ProgramMetricsManager";
 import ProgramMetricsView from "./pages/ProgramMetricsView";
+// Import the new forms
+import SpiritualReportForm from "./pages/SpiritualReportForm";
+import SportingReportForm from "./pages/SportingReportForm";
 
 function AppContent() {
     return (
@@ -55,11 +57,20 @@ function AppContent() {
                         </RoleRoute>
                     }
                 />
+                {/* NEW: Separate forms for spiritual and sporting reports */}
                 <Route
-                    path="/metrics-form"
+                    path="/spiritual-report"
                     element={
                         <RoleRoute allowedRoles={["admin"]}>
-                            <AdditionalMetricsForm />
+                            <SpiritualReportForm />
+                        </RoleRoute>
+                    }
+                />
+                <Route
+                    path="/sporting-report"
+                    element={
+                        <RoleRoute allowedRoles={["admin"]}>
+                            <SportingReportForm />
                         </RoleRoute>
                     }
                 />

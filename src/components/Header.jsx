@@ -52,9 +52,32 @@ export default function Header() {
                             <NavLink to="/staff-registration" currentPath={location.pathname}>
                                 👥 Marshal
                             </NavLink>
-                            <NavLink to="/metrics-form" currentPath={location.pathname}>
-                                📋 Metrics
-                            </NavLink>
+
+                            {/* NEW: Replace single metrics form with two separate forms */}
+                            <div className="relative group">
+                                <button className="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 whitespace-nowrap flex items-center">
+                                    📋 Metrics
+                                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+
+                                {/* Dropdown menu for metrics forms */}
+                                <div className="absolute left-0 mt-1 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                                    <Link
+                                        to="/spiritual-report"
+                                        className="block w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors border-b border-gray-100 dark:border-gray-700"
+                                    >
+                                        ✝️ Spiritual Report
+                                    </Link>
+                                    <Link
+                                        to="/sporting-report"
+                                        className="block w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                    >
+                                        ⚽ Sporting Report
+                                    </Link>
+                                </div>
+                            </div>
 
                             {/* Program Metrics - Different links based on role */}
                             {userRole === "admin" ? (
@@ -199,8 +222,16 @@ export default function Header() {
                             <MobileNavLink to="/staff-registration" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
                                 👥 Marshal Registration
                             </MobileNavLink>
-                            <MobileNavLink to="/metrics-form" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
-                                📋 Program Metrics Form
+
+                            {/* NEW: Separate metrics forms for mobile */}
+                            <div className="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200">
+                                📋 Metrics Forms
+                            </div>
+                            <MobileNavLink to="/spiritual-report" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
+                                &nbsp;&nbsp;✝️ Spiritual Report
+                            </MobileNavLink>
+                            <MobileNavLink to="/sporting-report" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
+                                &nbsp;&nbsp;⚽ Sporting Report
                             </MobileNavLink>
 
                             {/* Program Metrics - Different links based on role */}

@@ -95,6 +95,36 @@ export default function ProgramMetricsDashboard() {
         }
     };
 
+    //TODO: Update fetchMetricsData to pull from both spiritualReports and sportingReports collections
+    // Inside ProgramMetricsDashboard.jsx
+    // const fetchMetricsData = async () => {
+    //     setLoading(true);
+    //     setError(null);
+    //     try {
+    //         // Fetch from both collections
+    //         const [spiritualSnapshot, sportingSnapshot] = await Promise.all([
+    //             getDocs(collection(db, "spiritualReports")),
+    //             getDocs(collection(db, "sportingReports"))
+    //         ]);
+    //
+    //         const metrics = [];
+    //
+    //         spiritualSnapshot.forEach((doc) => {
+    //             metrics.push({ id: doc.id, ...doc.data() });
+    //         });
+    //         sportingSnapshot.forEach((doc) => {
+    //             metrics.push({ id: doc.id, ...doc.data() });
+    //         });
+    //
+    //         setMetricsData(metrics);
+    //     } catch (error) {
+    //         console.error("Error fetching metrics data:", error);
+    //         setError("Failed to load metrics data. Please try again later.");
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+
     // Use useCallback to memoize the filter function
     const filterDataByTime = useCallback((data) => {
         if (timeFilter === "all") return data;
@@ -129,6 +159,16 @@ export default function ProgramMetricsDashboard() {
 
     // Calculate all metrics - use useCallback to memoize this function
     const calculateMetrics = useCallback(() => {
+
+        // TODO: UPDATE THIS IN FETURE WHEN TO USE FOR NEXT UPDATE
+        // const decisionsForChrist = filteredData.filter(item =>
+        //     item.reportType === "spiritual" && item.decisionForChrist
+        // ).length;
+        //
+        // const teamWins = filteredData.filter(item =>
+        //     item.reportType === "sporting" && item.teamWin === true
+        // );
+
         // Spiritual metrics
         const decisionsForChrist = filteredData.filter(item => item.decisionForChrist).length;
         const holyGhostBaptisms = filteredData.filter(item => item.holyGhostBaptism).length;
